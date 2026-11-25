@@ -46,11 +46,21 @@ export function incidentRoutes() {
   r.get('/incidents', async (c) => {
     const svc = c.get('svc');
     const user = c.get('user');
-    const q = readQuery(c, z.object({ status: z.enum(['pendiente', 'en_proceso', 'resuelta']).optional(), mine: z.enum(['1', 'true', '0', 'false']).optional() }));
+    const q = readQuery(
+      c,
+      z.object({
+        status: z.enum(['pendiente', 'en_proceso', 'resuelta']).optional(),
+        mine: z.enum(['1', 'true', '0', 'false']).optional(),
+        referred: z.enum(['1', 'true', '0', 'false']).optional(),
+      }),
+    );
     const mine = q.mine === '1' || q.mine === 'true' || !has(c, 'incidents:read');
     if (mine && !has(c, 'incidents:own_followup') && !has(c, 'incidents:create') && !has(c, 'incidents:read')) throw forbidden();
     const list = await svc.repo.listIncidents({ ...(q.status ? { status: q.status } : {}), ...(mine ? { reporterUserId: user.id } : {}) });
-    return c.json(list);
+    if (q.referred !== '1' && q.referred !== 'true') return c.json(list);
+    // Con derivación a Modevet (abierta o cerrada): se miran sus elementos de agenda, en paralelo.
+    const linked = await Promise.all(list.map((i) => svc.repo.listAgendaByIncident(i.id)));
+    return c.json(list.filter((_, n) => linked[n]!.some((x) => isReferral(x))));
   });
 
   r.get('/incidents/:id', async (c) => {

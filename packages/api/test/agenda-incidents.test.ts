@@ -81,6 +81,16 @@ describe('agenda', () => {
     const again = await req('POST', `/agenda/${a.id}/register-history`, { as: 'modevet', body: {} });
     expect(again.body.error.code).toBe('already_registered');
   });
+
+  it('registrar en historial copia las notas opcionales a los eventos', async () => {
+    const { req } = await setup();
+    const a = (await req('POST', '/agenda', { as: 'modevet', body: cita() })).body;
+    await req('PATCH', `/agenda/${a.id}`, { as: 'modevet', body: { status: 'concluida' } });
+    const r = await req('POST', `/agenda/${a.id}/register-history`, { as: 'modevet', body: { notes: 'Dosis según peso' } });
+    expect(r.status).toBe(200);
+    expect(r.body.events).toHaveLength(1);
+    expect(r.body.events[0].notes).toContain('Dosis según peso');
+  });
 });
 
 describe('incidencias', () => {
@@ -135,6 +145,21 @@ describe('incidencias', () => {
     expect(list.body.items.find((x: any) => x.incidentId === i.id).status).toBe('concluida');
     const again = await req('POST', `/incidents/${i.id}/resolve`, { as: 'carlet', body: { byStaffId: 's-vet1', treatment: 'x' } });
     expect(again.body.error.code).toBe('closed');
+  });
+
+  it('?referred=1: solo las que tienen derivación (abierta o cerrada)', async () => {
+    const { req } = await setup();
+    const a = (await req('POST', '/incidents', { as: 'bienestar', body: incident })).body;
+    const b = (await req('POST', '/incidents', { as: 'bienestar', body: { ...incident, text: 'Sin derivar' } })).body;
+    const c = (await req('POST', '/incidents', { as: 'bienestar', body: { ...incident, text: 'Derivada y resuelta' } })).body;
+    await req('POST', `/incidents/${b.id}/appointment`, { as: 'carlet', body: { agenda: 'carlet', date: '2026-06-16', time: '09:30', appointmentTypeId: 'at-consulta' } });
+    await req('POST', `/incidents/${a.id}/referral`, { as: 'carlet', body: { date: '2026-06-16', appointmentTypeId: 'at-consulta' } });
+    await req('POST', `/incidents/${c.id}/referral`, { as: 'carlet', body: { date: '2026-06-16', appointmentTypeId: 'at-consulta' } });
+    await req('POST', `/incidents/${c.id}/resolve`, { as: 'modevet', body: { byStaffId: 's-vet1', treatment: 'Hecho' } });
+    const r = await req('GET', '/incidents?referred=1', { as: 'modevet' });
+    expect(r.status).toBe(200);
+    expect(r.body.map((i: any) => i.id).sort()).toEqual([a.id, c.id].sort());
+    expect((await req('GET', '/incidents', { as: 'modevet' })).body).toHaveLength(3);
   });
 
   it('modevet no resuelve incidencias sin derivación', async () => {

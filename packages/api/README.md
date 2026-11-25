@@ -17,6 +17,7 @@ src/
   templates/        plantillas por defecto (*.html) + textos legales
   dev/seed.ts       datos sintéticos (inventados)
   dev/server.ts     servidor local :8787 con repo en memoria
+  dev/disk-files.ts ficheros de dev en disco (os.tmpdir()/modepran-dev-files): /dev-files/* (GET, PUT) y /public-files/*
 ```
 
 ## Desarrollo
@@ -76,9 +77,9 @@ actionCategories `subcategories: {id,name,active,vetSubtypeId?}[], vetSubtypeId?
 
 | Método | Ruta | Permiso | Cuerpo / query | Respuesta |
 |---|---|---|---|---|
-| GET | `/animals` | `animals:read` | query: filtros de `AnimalFilters` (dominio) + `page`, `pageSize`, `sort` (`id`,`name`,`arrivalDate`,`exitDate`,`bornAt`,`updatedAt`,`weightKg`), `dir` (`asc`/`desc`). Booleanos `true`/`false`. `contact` requiere `animals:read_contacts` | `Page<Animal>` |
+| GET | `/animals` | `animals:read` | query: filtros de `AnimalFilters` (dominio) + `page`, `pageSize`, `sort` (`id`,`name`,`arrivalDate`,`exitDate`,`bornAt`,`updatedAt`,`weightKg`), `dir` (`asc`/`desc`). Booleanos `true`/`false`. `contact` requiere `animals:read_contacts` | `Page<Animal & {photoUrl?, thumbUrl?}>` (GET firmados, 5 min, si `hasPhoto`) |
 | POST | `/animals` | `animals:write` | `{ animal: AnimalInput, arrival: EventInput }` | `201 { animal, event, contact? }` |
-| GET | `/animals/:id` | `animals:read` | — | `{ animal, events: HistoryEvent[] (cronológico), contacts: Contact[] }` (sin contactos ni `contactId` si falta `animals:read_contacts`) |
+| GET | `/animals/:id` | `animals:read` | — | `{ animal, events: HistoryEvent[] (cronológico), contacts: Contact[], photoUrl?, thumbUrl? }` (URLs firmadas 5 min si `hasPhoto`; sin contactos ni `contactId` si falta `animals:read_contacts`) |
 | PATCH | `/animals/:id` | `animals:write` | `Partial<AnimalInput>` (no estado, centro ni derivados) | `Animal` |
 | DELETE | `/animals/:id` | `animals:delete` | — | `204` (borra eventos y ficheros) |
 | GET | `/animals/:id/allowed-types` | `animals:read` | — | `{ typeIds[], subtypes: Subtype[] }` (ya filtrado por los permisos del usuario) |
@@ -122,7 +123,7 @@ en ese plazo. El logo es `/images/logo.png` del propio dominio web (lo sirve `pa
 | GET | `/templates/:slug` | `templates:write` | — | `{ slug, name, bodyFilled, bodyBlank, legalTexts, defaults: {bodyFilled, bodyBlank, legalTexts}, customized, placeholders[], blocks[], langKeys[] }` |
 | PUT | `/templates/:slug` | `templates:write` | `{ bodyFilled, bodyBlank, legalTexts?, name? }` | `{ template, warnings: string[] }` (placeholders desconocidos) |
 | POST | `/templates/:slug/reset` | `templates:write` | — | `{ slug, ... }` (vuelve a la por defecto) |
-| GET | `/documents/event/:eventId?animalId=&blank=` | `documents:generate` (Veterinario: `documents:vet`) | `animalId` muy recomendable (si falta se busca en todos los eventos) | `{ slug, title, html }` |
+| GET | `/documents/event/:eventId?animalId=&blank=` | `documents:generate` (Veterinario: `documents:vet`) | `animalId` (alias `animal`) muy recomendable (si falta se busca en todos los eventos) | `{ slug, title, html }` |
 | GET | `/documents/blank/:slug` | `documents:generate` (`veterinario`: `documents:vet`) | — | `{ slug, title, html }` |
 | GET | `/documents/ficha/:animalId` | `documents:generate` | — | `{ slug: 'ficha', title, html }` |
 | GET | `/documents/fichas?<filtros de /animals>` | `documents:generate` | máx. 300 fichas | `{ slug: 'ficha', title, count, html }` (una ficha por página) |
@@ -150,13 +151,13 @@ Query común: `from`, `to` (por defecto 12 meses hasta hoy), `zoneId`, `cityId`,
 | POST | `/agenda` | `agenda_<x>:write` (Modevet + `isReferral`: `agenda_modevet:referral`; `ambas`: escribir en alguna) | `NewAgendaItemInput` (dominio) | `201 AgendaItem` |
 | PATCH | `/agenda/:id` | escritura en su agenda | `{ status?, text?, actions?, owner? }` | `AgendaItem` |
 | POST | `/agenda/:id/reschedule` | escritura en su agenda | `{ date, time? }` | `{ original, created }` |
-| POST | `/agenda/:id/register-history` | `events:vet` | `{ actionIndexes?: number[] }` (por defecto todas) | `{ events: HistoryEvent[], skipped: {index, reason}[] }` — cita concluida con `animalId`; una vez |
+| POST | `/agenda/:id/register-history` | `events:vet` | `{ actionIndexes?: number[], notes?: string }` (por defecto todas; `notes` se añade a cada evento) | `{ events: HistoryEvent[], skipped: {index, reason}[] }` — cita concluida con `animalId`; una vez |
 
 ### Incidencias
 
 | Método | Ruta | Permiso | Cuerpo / query | Respuesta |
 |---|---|---|---|---|
-| GET | `/incidents?status&mine=1` | `incidents:read` (Bienestar: solo las suyas) | — | `Incident[]` (recientes primero) |
+| GET | `/incidents?status&mine=1&referred=1` | `incidents:read` (Bienestar: solo las suyas) | `referred=1`: solo las que tienen derivación a Modevet (abierta o cerrada) | `Incident[]` (recientes primero) |
 | GET | `/incidents/:id` | ídem | — | `{ incident, agenda: AgendaItem[], photoUrls: {key,url}[] }` |
 | POST | `/incidents` | `incidents:create` | `NewIncidentInput` sin fotos | `201 Incident` |
 | POST | `/incidents/:id/photo-upload-url` | autor o `incidents:manage` | `{ contentType, bytes }` | `{ key, url }` (PUT firmado) |

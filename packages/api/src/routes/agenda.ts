@@ -144,7 +144,7 @@ export function agendaRoutes() {
     const svc = c.get('svc');
     const user = c.get('user');
     const item = await loadItem(c);
-    const body = await readBody(c, z.object({ actionIndexes: z.array(z.number().int().nonnegative()).optional() }));
+    const body = await readBody(c, z.object({ actionIndexes: z.array(z.number().int().nonnegative()).optional(), notes: z.string().trim().max(5000).optional() }));
     if (item.kind !== 'cita' || item.animalId === undefined) throw new ApiError(422, 'no_animal', 'Solo citas de animales con ficha.');
     if (item.status !== 'concluida') throw new ApiError(422, 'not_concluded', 'La cita tiene que estar concluida.');
     if (item.historyEventIds?.length) throw new ApiError(422, 'already_registered', 'Esta cita ya se registró en el historial.');
@@ -176,7 +176,7 @@ export function agendaRoutes() {
         skipped.push({ index: i, reason: `"${subtype.name}" necesita más datos: regístralo desde la ficha.` });
         continue;
       }
-      const notes = [cat?.name, sub?.name, a.text, item.text].filter(Boolean).join(' · ');
+      const notes = [cat?.name, sub?.name, a.text, item.text, body.notes].filter(Boolean).join(' · ');
       try {
         const res = applyEvent(
           animal,

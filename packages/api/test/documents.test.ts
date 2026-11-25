@@ -40,6 +40,8 @@ describe('plantillas: editar y restablecer', () => {
     const t = await req('GET', '/templates');
     expect(t.body.find((x: any) => x.slug === 'adopcion').customized).toBe(true);
     await req('POST', '/templates/adopcion/reset');
+    const alias = await req('GET', `/documents/event/${ev.body.event.id}?animal=11`, { as: 'carlet' });
+    expect(alias.status).toBe(200);
     const doc2 = await req('GET', `/documents/event/${ev.body.event.id}`, { as: 'carlet' });
     expect(doc2.body.html).toContain('Persona');
     expect(doc2.body.html).not.toContain('[ANIMAL_NOMBRE]');

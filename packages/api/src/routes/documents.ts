@@ -279,11 +279,20 @@ export function documentRoutes() {
   r.get('/documents/event/:eventId', async (c) => {
     const svc = c.get('svc');
     const eventId = intParam(c, 'eventId');
-    const q = readQuery(c, z.object({ animalId: z.coerce.number().int().positive().optional(), blank: z.enum(['1', 'true', '0', 'false']).optional() }));
+    // `animalId` es el nombre documentado; `animal` se acepta como alias.
+    const q = readQuery(
+      c,
+      z.object({
+        animalId: z.coerce.number().int().positive().optional(),
+        animal: z.coerce.number().int().positive().optional(),
+        blank: z.enum(['1', 'true', '0', 'false']).optional(),
+      }),
+    );
+    const animalId = q.animalId ?? q.animal;
     const user = c.get('user');
     if (!can(user.profiles, 'documents:generate') && !can(user.profiles, 'documents:vet')) throw forbidden();
-    const event = q.animalId
-      ? (await svc.repo.getAnimalEvents(q.animalId)).find((e) => e.id === eventId)
+    const event = animalId
+      ? (await svc.repo.getAnimalEvents(animalId)).find((e) => e.id === eventId)
       : (await svc.allEvents()).find((e) => e.id === eventId);
     if (!event) throw notFound('El evento');
     const cats = await svc.catalogs();

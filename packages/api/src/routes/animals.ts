@@ -81,6 +81,15 @@ function checkDocumentKey(animalId: number, input: NewEventInput) {
     throw new ApiError(400, 'validation', 'Clave de documento no válida.', 'document');
 }
 
+/**
+ * URLs firmadas GET (5 min) de foto y miniatura si `hasPhoto`. La firma es local (sin red), en paralelo.
+ */
+export async function withPhotoUrls<T extends Pick<Animal, 'id' | 'hasPhoto'>>(svc: Services, a: T): Promise<T & { photoUrl?: string; thumbUrl?: string }> {
+  if (!a.hasPhoto) return a;
+  const [photoUrl, thumbUrl] = await Promise.all([svc.files.downloadUrl(fileKeys.animalPhoto(a.id)), svc.files.downloadUrl(fileKeys.animalThumb(a.id))]);
+  return { ...a, photoUrl, thumbUrl };
+}
+
 export function animalRoutes() {
   const r = new Hono<AppEnv>();
 
@@ -88,8 +97,9 @@ export function animalRoutes() {
     need(c, 'animals:read');
     const q = readQuery(c, animalFiltersQuery);
     const page = await filteredAnimals(c, q);
-    if (!has(c, 'animals:read_contacts')) page.items = page.items.map(redactAnimal);
-    return c.json(page);
+    const items = has(c, 'animals:read_contacts') ? page.items : page.items.map(redactAnimal);
+    const svc = c.get('svc');
+    return c.json({ ...page, items: await Promise.all(items.map((a) => withPhotoUrls(svc, a))) });
   });
 
   r.post('/animals', async (c) => {
@@ -126,9 +136,11 @@ export function animalRoutes() {
     const animal = await svc.repo.getAnimal(id);
     if (!animal) throw notFound('El animal');
     const events = sortEvents(await svc.repo.getAnimalEvents(id));
-    if (!has(c, 'animals:read_contacts')) return c.json({ animal: redactAnimal(animal), events: events.map(redactEvent), contacts: [] });
+    const { photoUrl, thumbUrl } = await withPhotoUrls(svc, animal);
+    const urls = { ...(photoUrl ? { photoUrl } : {}), ...(thumbUrl ? { thumbUrl } : {}) };
+    if (!has(c, 'animals:read_contacts')) return c.json({ animal: redactAnimal(animal), events: events.map(redactEvent), contacts: [], ...urls });
     const contacts = (await Promise.all(animal.contactIds.map((cid) => svc.repo.getContact(cid)))).filter((x): x is Contact => !!x);
-    return c.json({ animal, events, contacts });
+    return c.json({ animal, events, contacts, ...urls });
   });
 
   r.patch('/animals/:id', async (c) => {

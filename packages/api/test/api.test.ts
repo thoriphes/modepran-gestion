@@ -173,6 +173,24 @@ describe('animales y eventos', () => {
     expect(forb.status).toBe(403);
   });
 
+  it('listado y ficha incluyen URLs firmadas de foto y miniatura si hay foto', async () => {
+    const { req } = await setup();
+    const r = await req('GET', '/animals?pageSize=100&sort=id&dir=asc', { as: 'bienestar' });
+    const withPhoto = r.body.items.filter((a: any) => a.hasPhoto);
+    expect(withPhoto.length).toBeGreaterThan(0);
+    for (const a of withPhoto) {
+      expect(a.thumbUrl).toBe(`https://files.local/animals/${a.id}/thumb.jpg?signed=get`);
+      expect(a.photoUrl).toBe(`https://files.local/animals/${a.id}/photo.jpg?signed=get`);
+    }
+    expect(r.body.items.filter((a: any) => !a.hasPhoto).every((a: any) => !a.thumbUrl && !a.photoUrl)).toBe(true);
+    const d = await req('GET', `/animals/${withPhoto[0].id}`);
+    expect(d.body.photoUrl).toContain('/photo.jpg');
+    expect(d.body.thumbUrl).toContain('/thumb.jpg');
+    const noPhoto = r.body.items.find((a: any) => !a.hasPhoto);
+    const d2 = await req('GET', `/animals/${noPhoto.id}`);
+    expect(d2.body.photoUrl).toBeUndefined();
+  });
+
   it('borrar animal (admin) borra eventos, ficheros y guardián del chip', async () => {
     const { req, repo, files } = await setup();
     const r = await req('DELETE', '/animals/10');
