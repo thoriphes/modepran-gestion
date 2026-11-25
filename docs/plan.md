@@ -12,7 +12,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
 | P5 | Migración: parser del volcado MariaDB, mapeo a dominio, carga a DynamoDB/S3, dry-run y verificación | `packages/migrate` | P2, P3 (repo) | ✅ carga de prueba hecha |
 | P6 | Frontal: login, fichas, historial, contactos, documentos, informes/Excel, agenda, incidencias, admin, web pública | `packages/web` | P3 (contrato) | ✅ desplegado (probado en local; en prod solo hasta el login) |
 | P7 | Despliegue en AWS (eu-north-1), migración de datos del backup del 19/11, usuarios iniciales | — | P3-P6 | ✅ 2026-11-25 (ver despliegue.md) |
-| P8 | Verificación end-to-end, docs y HANDOFF actualizados | — | P7 | 🟨 |
+| P8 | Verificación end-to-end, docs y HANDOFF actualizados | — | P7 | ✅ 2026-11-25 (revisión de seguridad hecha y desplegada) |
 
 ## Notas de ejecución
 
@@ -62,3 +62,10 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
 - Throttling de la API; objetos inexistentes en la web devuelven 403 de S3 en vez de 404.
 - CI: el workflow `deploy.yml` está solo en manual (descomentar `push` cuando se quiera).
 - SES fuera del sandbox + DKIM en Squarespace; dominio propio `gestion.protectoramodepran.com`.
+
+**De la revisión de seguridad (2026-11-25; lo grave ya está corregido y desplegado)**
+- Exigir MFA a los admin (Cognito lo tiene opcional).
+- Limitar el tamaño de subida (URL firmada PUT sin límite de tamaño; pasar a POST con política).
+- Quitar el flujo `userSrp` del cliente de Cognito si el managed login funciona sin él (probarlo).
+- Matriz de permisos, decisiones menores: Carlet borra contactos sin uso; Carlet edita sus derivaciones en
+  la agenda de Modevet; la web enseña el botón "Ficha" a Modevet aunque la API le da 403.
