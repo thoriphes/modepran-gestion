@@ -203,6 +203,12 @@ export class ModepranStack extends cdk.Stack {
     }
 
     // ───────────────────────── CloudFront ─────────────────────────
+    // CSP con los hosts exactos (no `*.amazonaws.com`, que dejaría mandar datos a cualquier bucket ajeno):
+    // URLs firmadas del bucket de ficheros (estilo virtual-host del SDK v3), OIDC de Cognito (metadatos y JWKS)
+    // y el dominio de login de Cognito (token).
+    const filesHost = `https://${filesBucket.bucketName}.s3.${this.region}.amazonaws.com`;
+    const cognitoIdpHost = `https://cognito-idp.${this.region}.amazonaws.com`;
+    const cognitoLoginHost = `https://${COGNITO_DOMAIN_PREFIX}.auth.${this.region}.amazoncognito.com`;
     const securityHeaders = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeaders', {
       responseHeadersPolicyName: 'modepran-security-headers',
       securityHeadersBehavior: {
@@ -223,12 +229,12 @@ export class ModepranStack extends cdk.Stack {
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline'",
             "style-src 'self' 'unsafe-inline'",
-            "img-src 'self' data: blob: https://*.amazonaws.com",
-            "connect-src 'self' https://*.amazonaws.com https://*.amazoncognito.com",
+            `img-src 'self' data: blob: ${filesHost}`,
+            `connect-src 'self' ${filesHost} ${cognitoIdpHost} ${cognitoLoginHost}`,
             "font-src 'self' data:",
             "frame-ancestors 'none'",
             "base-uri 'self'",
-            "form-action 'self' https://*.amazoncognito.com",
+            `form-action 'self' ${cognitoLoginHost}`,
             "object-src 'none'",
           ].join('; '),
           override: true,
@@ -356,7 +362,17 @@ export class ModepranStack extends cdk.Stack {
     apiFn.addEnvironment('APP_ORIGIN', appOrigin);
     apiFn.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ['cognito-idp:Admin*', 'cognito-idp:ListUsers', 'cognito-idp:ListUsersInGroup', 'cognito-idp:ListGroups'],
+        // Solo lo que usa `users.ts` (nada de AdminDeleteUser, AdminSetUserPassword, AdminInitiateAuth…).
+        actions: [
+          'cognito-idp:AdminCreateUser',
+          'cognito-idp:AdminAddUserToGroup',
+          'cognito-idp:AdminRemoveUserFromGroup',
+          'cognito-idp:AdminListGroupsForUser',
+          'cognito-idp:AdminUpdateUserAttributes',
+          'cognito-idp:AdminDisableUser',
+          'cognito-idp:AdminEnableUser',
+          'cognito-idp:ListUsers',
+        ],
         resources: [userPool.userPoolArn],
       }),
     );
