@@ -2,8 +2,9 @@
  * Vista de impresión A4. Dos casos:
  * - HTML completo (`<!DOCTYPE html>…`, lo que devuelve la API en `/documents/*`): se pinta en un `<iframe srcdoc>`
  *   con sus propios estilos y "Imprimir" llama a `print()` del iframe (solo se imprime el documento).
- * - Fragmentos HTML (vista previa del editor de plantillas): hojas `.print-sheet` dentro de la página.
- * El HTML viene de plantillas del servidor (las edita un admin): es de confianza.
+ * - Fragmentos HTML: `PrintView` los envuelve en un documento y usa el mismo iframe. Solo la vista previa de
+ *   fragmentos del editor de plantillas (admin) los pinta dentro de la página.
+ * El HTML viene de plantillas del servidor (las edita un admin). El iframe va con `sandbox` sin scripts por si acaso.
  */
 import { useRef, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -44,6 +45,9 @@ export function DocumentFrame({ html, title, frameRef }: { html: string; title: 
       ref={ref}
       title={title}
       srcDoc={html}
+      // Sin `allow-scripts`: aunque una plantilla lleve <script> o atributos on*, no se ejecutan en el origen
+      // de la app. `allow-same-origin` deja medir la altura; `allow-modals`, llamar a print().
+      sandbox="allow-same-origin allow-modals"
       onLoad={() => {
         fit();
         // Las imágenes (fotos firmadas, logo) cargan después: reajustar.
@@ -57,16 +61,15 @@ export function DocumentFrame({ html, title, frameRef }: { html: string; title: 
 
 export function PrintView({ title, pages, extra }: { title: ReactNode; pages: string[]; extra?: ReactNode }) {
   const frame = useRef<HTMLIFrameElement>(null);
-  const full = pages.length === 1 && isFullDocument(pages[0]!);
+  // Lo que viene de la API se pinta siempre en el iframe aislado: si una plantilla editada ya no es un documento
+  // completo, se envuelve en uno (así nunca entra por innerHTML en la página de la app).
+  const single = pages.length === 1 && isFullDocument(pages[0]!);
+  const doc = single ? pages[0]! : `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"></head><body>${pages.join('')}</body></html>`;
   return (
     <div className="bg-stone-200/60 pb-8 print:bg-white dark:bg-stone-900">
-      <PrintBar title={title} extra={extra} {...(full ? { onPrint: () => frame.current?.contentWindow?.print() } : {})} />
+      <PrintBar title={title} extra={extra} onPrint={() => frame.current?.contentWindow?.print()} />
       <div className="overflow-x-auto px-2 print:overflow-visible print:px-0">
-        {full ? (
-          <DocumentFrame html={pages[0]!} title={typeof title === 'string' ? title : 'Documento'} frameRef={frame} />
-        ) : (
-          pages.map((html, i) => <PrintSheet key={i} html={html} />)
-        )}
+        <DocumentFrame html={doc} title={typeof title === 'string' ? title : 'Documento'} frameRef={frame} />
       </div>
     </div>
   );

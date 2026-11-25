@@ -215,6 +215,7 @@ describe('permisos (spec §3)', () => {
     expect(canWriteAgenda(p, 'modevet')).toBe(true);
     expect(can(p, 'contacts:read')).toBe(false);
     expect(can(p, 'contacts:own_clients')).toBe(true);
+    expect(can(p, 'animals:read_contacts')).toBe(false);
     expect(can(p, 'incidents:create')).toBe(false);
     expect(can(p, 'incidents:resolve_referred')).toBe(true);
     expect(can(p, 'reports:read')).toBe(false);

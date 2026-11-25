@@ -302,7 +302,8 @@ export function documentRoutes() {
     if (!canPrint(c, slug)) throw forbidden();
     const animal = await svc.repo.getAnimal(event.animalId);
     if (!animal) throw notFound('El animal');
-    const contact = event.contactId !== undefined ? await svc.repo.getContact(event.contactId) : undefined;
+    // Los datos del contacto solo para quien puede verlos (Modevet imprime veterinarios sin contactos).
+    const contact = event.contactId !== undefined && has(c, 'animals:read_contacts') ? await svc.repo.getContact(event.contactId) : undefined;
     const { template } = await effectiveTemplate(svc, slug);
     const blank = q.blank === '1' || q.blank === 'true';
     const dict = dictionary(template);

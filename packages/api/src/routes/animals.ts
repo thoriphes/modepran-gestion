@@ -24,6 +24,26 @@ import type { AuthUser } from '../types.js';
 
 type EventBody = z.infer<typeof eventInput>;
 
+/** Tipos admitidos para adjuntos de eventos. */
+export const EVENT_DOC_MIME: readonly string[] = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/heic',
+  'image/heif',
+  'image/tiff',
+  'image/bmp',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.oasis.opendocument.text',
+  'application/vnd.oasis.opendocument.spreadsheet',
+  'application/octet-stream',
+];
+
 /** Quita los datos de contactos para quien no puede verlos (Bienestar). */
 export function redactAnimal(a: Animal): Animal {
   return { ...a, contactIds: [] };
@@ -276,7 +296,9 @@ export function animalRoutes() {
     needAny(c, 'animals:write', 'events:vet');
     const svc = c.get('svc');
     const id = intParam(c, 'id');
-    const body = await readBody(c, z.object({ fileName: z.string().trim().min(1).max(300), contentType: z.string().trim().min(1).max(150) }));
+    const body = await readBody(c, z.object({ fileName: z.string().trim().min(1).max(300), contentType: z.string().trim().toLowerCase().min(1).max(150) }));
+    // Solo tipos que el navegador no ejecuta (nada de text/html, image/svg+xml…): la URL firmada fija el tipo.
+    if (!EVENT_DOC_MIME.includes(body.contentType)) throw new ApiError(422, 'invalid_document', 'Tipo de fichero no admitido (PDF, imagen u ofimática).', 'contentType');
     if (!(await svc.repo.getAnimal(id))) throw notFound('El animal');
     const ext = (body.fileName.match(/\.([A-Za-z0-9]{1,8})$/)?.[1] ?? 'bin').toLowerCase();
     const key = `${fileKeys.eventDocPrefix(id)}${svc.newId()}.${ext}`;
@@ -289,11 +311,13 @@ export function animalRoutes() {
     const id = intParam(c, 'id');
     const key = c.req.query('key') ?? '';
     if (!key.startsWith(fileKeys.animalPrefix(id)) || key.includes('..')) throw new ApiError(400, 'validation', 'Clave no válida.', 'key');
-    // Los adjuntos de eventos pueden llevar datos de contactos: Bienestar solo ve las fotos.
-    if (key.startsWith(fileKeys.eventDocPrefix(id)) && !has(c, 'animals:read_contacts')) throw forbidden();
-    const events = key.startsWith(fileKeys.eventDocPrefix(id)) ? await svc.repo.getAnimalEvents(id) : [];
-    const name = events.find((e) => e.document?.key === key)?.document?.originalName;
-    return c.json({ url: await svc.files.downloadUrl(key, name) });
+    if (!key.startsWith(fileKeys.eventDocPrefix(id))) return c.json({ url: await svc.files.downloadUrl(key) });
+    // Los adjuntos de eventos pueden llevar datos de contactos (contratos firmados): solo quien ve contactos,
+    // o quien registra eventos veterinarios (Modevet) para los adjuntos de eventos veterinarios.
+    const event = (await svc.repo.getAnimalEvents(id)).find((e) => e.document?.key === key);
+    if (!event) throw notFound('El fichero');
+    if (!has(c, 'animals:read_contacts') && !(event.typeId === 'veterinario' && has(c, 'events:vet'))) throw forbidden();
+    return c.json({ url: await svc.files.downloadUrl(key, event.document?.originalName) });
   });
 
   return r;

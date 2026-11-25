@@ -87,8 +87,8 @@ actionCategories `subcategories: {id,name,active,vetSubtypeId?}[], vetSubtypeId?
 | DELETE | `/animals/:id/events/:eventId` | `events:delete` | — | `{ animal }` (no se borra el primero: 422 `first_event`) |
 | POST | `/animals/:id/photo-upload-url` | `animals:write` | `{ contentType?: 'image/jpeg' }` | `{ photo: {key,url}, thumb: {key,url} }` (PUT firmados, 5 min) |
 | POST | `/animals/:id/photo-uploaded` | `animals:write` | — | `Animal` (`hasPhoto: true`; actualiza la foto pública) |
-| POST | `/animals/:id/event-upload-url` | `animals:write` o `events:vet` | `{ fileName, contentType }` | `{ key, url }` (PUT firmado; luego `document: {key, originalName}` en el evento) |
-| GET | `/animals/:id/file-url?key=` | `animals:read` | `key` bajo `animals/<id>/` | `{ url }` (GET firmado, 5 min) |
+| POST | `/animals/:id/event-upload-url` | `animals:write` o `events:vet` | `{ fileName, contentType }` (`contentType`: PDF, imagen u ofimática, `EVENT_DOC_MIME`; otro → 422) | `{ key, url }` (PUT firmado; luego `document: {key, originalName}` en el evento) |
+| GET | `/animals/:id/file-url?key=` | `animals:read` | `key` bajo `animals/<id>/` | `{ url }` (GET firmado, 5 min). Adjuntos de eventos: la clave tiene que ser la de un evento (si no, 404) y hace falta `animals:read_contacts`, o `events:vet` si el evento es veterinario |
 
 `AnimalInput`: `{ name, speciesId, breedId? | breedName? (se crea al vuelo), color?, gender: 'male'|'female'|'none',
 weightKg?, size?: 'small'|'medium'|'big', bornAt?, sterilized, ppp, visibleWeb, compatibleDogs, compatibleCats,

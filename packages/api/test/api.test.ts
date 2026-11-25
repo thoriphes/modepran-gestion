@@ -236,3 +236,50 @@ describe('público', () => {
     expect((await req('GET', '/public/animals/10', { as: 'anon' })).body.name).toBe('Toby');
   });
 });
+
+describe('revisión de seguridad: contactos y adjuntos', () => {
+  it('modevet ve las fichas sin contactos ni filtro por contacto', async () => {
+    const { req } = await setup();
+    const r = await req('GET', '/animals/16', { as: 'modevet' });
+    expect(r.status).toBe(200);
+    expect(r.body.contacts).toEqual([]);
+    expect(r.body.animal.contactIds).toEqual([]);
+    expect(r.body.events.every((e: any) => e.contactId === undefined)).toBe(true);
+    expect((await req('GET', '/animals?contact=Inventada', { as: 'modevet' })).status).toBe(403);
+  });
+
+  it('subida de adjuntos: solo tipos que el navegador no ejecuta', async () => {
+    const { req } = await setup();
+    for (const contentType of ['text/html', 'image/svg+xml', 'application/javascript', 'text/xml']) {
+      const r = await req('POST', '/animals/10/event-upload-url', { as: 'carlet', body: { fileName: 'x.html', contentType } });
+      expect(r.status).toBe(422);
+    }
+    expect((await req('POST', '/animals/10/event-upload-url', { as: 'carlet', body: { fileName: 'a.PDF', contentType: 'application/pdf' } })).status).toBe(200);
+  });
+
+  it('adjuntos: Modevet solo los veterinarios, Bienestar ninguno, claves sin evento → 404', async () => {
+    const { req } = await setup();
+    const vetUp = (await req('POST', '/animals/11/event-upload-url', { as: 'carlet', body: { fileName: 'analitica.pdf', contentType: 'application/pdf' } })).body;
+    await req('POST', '/animals/11/events', {
+      as: 'carlet',
+      body: { subtypeId: 'documento', date: TODAY, userId: 's-vet1', document: { key: vetUp.key, originalName: 'analitica.pdf' } },
+    });
+    expect((await req('PATCH', '/catalogs/subtypes/adopcion', { body: { docUpload: true } })).status).toBe(200);
+    const contractUp = (await req('POST', '/animals/11/event-upload-url', { as: 'carlet', body: { fileName: 'contrato.pdf', contentType: 'application/pdf' } })).body;
+    const adop = await req('POST', '/animals/11/events', {
+      as: 'carlet',
+      body: { subtypeId: 'adopcion', date: TODAY, userId: 's-cui1', contact: { contactId: 2 }, document: { key: contractUp.key, originalName: 'contrato.pdf' } },
+    });
+    expect(adop.status).toBe(201);
+    expect(adop.body.event.document.key).toBe(contractUp.key);
+
+    const url = (key: string, as: 'carlet' | 'modevet' | 'bienestar') => req('GET', `/animals/11/file-url?key=${encodeURIComponent(key)}`, { as });
+    expect((await url(vetUp.key, 'modevet')).status).toBe(200);
+    expect((await url(contractUp.key, 'modevet')).status).toBe(403);
+    expect((await url(contractUp.key, 'carlet')).status).toBe(200);
+    expect((await url(vetUp.key, 'bienestar')).status).toBe(403);
+    expect((await url('animals/11/events/no-existe.pdf', 'carlet')).status).toBe(404);
+    expect((await url('animals/12/photo.jpg', 'carlet')).status).toBe(400);
+    expect((await url('animals/11/photo.jpg', 'bienestar')).status).toBe(200);
+  });
+});

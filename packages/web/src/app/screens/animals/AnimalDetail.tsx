@@ -242,7 +242,7 @@ function History({ detail, onAdd, onChanged }: { detail: Detail; onAdd: (() => v
                   {e.notes && <p className="whitespace-pre-line text-stone-700 dark:text-stone-300">{e.notes}</p>}
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {e.document && (
+                  {e.document && (showContacts || (e.typeId === 'veterinario' && s.can('events:vet'))) && (
                     <Button size="sm" onClick={() => void openFile(e)} title={e.document.originalName}>
                       📎 Adjunto
                     </Button>

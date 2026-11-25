@@ -69,9 +69,10 @@ export const PERMISSION_MATRIX: Record<Profile, readonly Permission[]> = {
     'incidents:manage',
     'catalogs:operational',
   ],
+  // Sin `animals:read_contacts`: Modevet solo ve los contactos de sus clientes (spec §3, legal-rgpd §4),
+  // no los adoptantes/acogedores del historial de las fichas.
   modevet: [
     'animals:read',
-    'animals:read_contacts',
     'events:vet',
     'contacts:own_clients',
     'documents:vet',
