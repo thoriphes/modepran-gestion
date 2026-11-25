@@ -28,6 +28,15 @@ Su perfil es **cero técnico**. Háblales como a alguien que no sabe nada de inf
 - **Respuestas cortas**, primero lo que importa ("ya está", "no se puede porque…", "necesito que…").
 - Confirma antes de cualquier cosa que cueste dinero, borre datos o afecte a la app que usa el personal.
 
+**Iniciar sesión en AWS: lo haces tú, él solo escribe su contraseña.** Su usuario es `miguel` (email
+`bienestar@modepran.net`). Cuando necesites acceso y la sesión haya caducado (dura 8 horas), ejecuta tú
+`aws sso login --profile modepran`: eso **abre el navegador** con la página de Amazon. Dile: "Te he abierto
+una página de Amazon. Escribe tu usuario `miguel`, tu contraseña y el código de tu móvil, y pulsa
+**Permitir** (Allow)". Espera a que te diga que ya está y comprueba con `aws sts get-caller-identity
+--profile modepran`. Si hay que entrar en la consola web de AWS, ábrele tú
+`https://d-936783225d.awsapps.com/start` en el navegador. Nunca le pidas que te diga su contraseña ni sus
+códigos.
+
 **Dudas de arquitectura → a Acción.** Si surge cualquier decisión de arquitectura o de fondo (cambiar de
 servicio o de región, base de datos, costes, seguridad, permisos/perfiles, modelo de datos, dominios,
 correo, hosting de la web, migraciones, traspaso de cuentas), **no la decidas tú ni le pidas a Miguel Ángel

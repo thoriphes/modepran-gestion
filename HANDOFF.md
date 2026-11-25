@@ -18,7 +18,7 @@ y de vuestra informática (correo, dominios, la web): cómo está hecho, dónde 
 |---|---|
 | La aplicación de gestión (`/app/`) | Fichas de los animales, contratos, informes, agendas de Carlet y Modevet, incidencias de Bienestar |
 | La página de adopciones (`/adopta/`) | Muestra en internet los animales marcados como "visible en web" |
-| La cuenta de Amazon (AWS) | Donde "vive" la aplicación. Es de la protectora (`bienestar@modepran.net`). Cuesta casi 0 € al mes y avisa por correo si pasa de 10 € |
+| La cuenta de Amazon (AWS) | Donde "vive" la aplicación. Tu usuario es `miguel`: te llegó un correo de Amazon a `bienestar@modepran.net` para poner tu contraseña. Cuando haga falta entrar, tu Claude te abrirá la página y solo tendrás que escribirla. Es de la protectora (`bienestar@modepran.net`). Cuesta casi 0 € al mes y avisa por correo si pasa de 10 € |
 | Google (Gmail) | El correo de la protectora |
 | Squarespace | Donde están comprados los dominios (las direcciones de internet) |
 
@@ -52,9 +52,10 @@ arquitectura → a **Acción** (Nacho), con el mensaje redactado.
 
 ### Pasos el día del traspaso
 
-1. **Usuario de Identity Center para Miguel Ángel** (no un usuario IAM con access keys): consola AWS →
-   IAM Identity Center (región eu-west-1) → Users → Add user, con su email; asignarle el permission set
-   `AdministratorAccess` en la cuenta `632115809125`. Que active MFA en el primer login.
+1. ✅ **Usuario de Identity Center de Miguel Ángel creado (2026-11-25):** usuario `miguel`, email
+   `bienestar@modepran.net`, `AdministratorAccess` en `632115809125`. Se le envió el email para poner la
+   contraseña y el de verificar el correo. En su primer login tiene que activar el MFA (el móvil).
+   Cuando haya que iniciar sesión, su Claude le abre el navegador (ver CLAUDE.md).
 2. En su equipo (lo prepara quien haga el traspaso, no él): AWS CLI v2 y Claude Code, perfil `modepran`
    (bloque en [CLAUDE.md](CLAUDE.md) → Acceso AWS), `aws sso login --profile modepran`, Node 22+ y `npm install`.
 3. Repo: **transferir** `thoriphes/modepran-gestion` a una cuenta/organización GitHub de la protectora
