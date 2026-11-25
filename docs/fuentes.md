@@ -1,6 +1,6 @@
 # Material de partida
 
-Todo llegó en **`Work.rar`** (2,6 GB, 2026-11-24), en `~/Downloads/` de Orgrimmar (el PC de Nacho).
+Todo llegó en **`Work.rar`** (2,6 GB, 2026-11-24), en el PC de Acción (Nacho).
 El original lo tiene Miguel Ángel. **No subirlo a Nextcloud ni a git**: contiene datos personales y secretos.
 
 | Fichero en el RAR | Qué es |

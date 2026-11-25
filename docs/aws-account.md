@@ -20,7 +20,7 @@ Antes del 2026-11-25 no existía ninguna cuenta AWS de Modepran.
 | Portal SSO | `https://d-936783225d.awsapps.com/start` |
 | Permission set | `AdministratorAccess` (política gestionada AdministratorAccess, sesión 8 h) |
 | Usuarios SSO | `nacho` (Nacho Roca, email personal de Nacho) y **`miguel`** (Miguel Ángel, `bienestar@modepran.net`, creado 2026-11-25) → AdministratorAccess en `632115809125`. A los dos se les envió el email de contraseña + verificación |
-| CLI | Perfil **`modepran`** + sso-session `modepran` en `~/.aws/config` de Orgrimmar: `aws sso login --profile modepran`. **Verificado 2026-11-25**: `assumed-role/AWSReservedSSO_AdministratorAccess_…/nacho` en `632115809125` |
+| CLI | Perfil **`modepran`** + sso-session `modepran` en `~/.aws/config` del PC de Acción: `aws sso login --profile modepran`. **Verificado 2026-11-25**: `assumed-role/AWSReservedSSO_AdministratorAccess_…/nacho` en `632115809125` |
 
 **Handoff (decidido 2026-11-25):** al terminar, el colega toma el proyecto con su propio Claude.
 Darle un **usuario de Identity Center propio** (no un usuario IAM con access keys) y su perfil SSO.

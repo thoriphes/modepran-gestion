@@ -1,6 +1,6 @@
 # Modepran: feature set de las dos webapps (para reimplementar desde cero)
 
-Analizado el 2026-11-25 a partir de `~/Downloads/Work.rar` (Orgrimmar). Solo funcionalidad: el
+Analizado el 2026-11-25 a partir de `Work.rar` (entregado por la protectora). Solo funcionalidad: el
 código no se reutiliza. Objetivo: **una sola app** en AWS (backend aparte + frontal React/Astro).
 
 | | App A: **Fichas de animales** | App B: **Gestión / Coordinación** (+ Recepcionista IA) |

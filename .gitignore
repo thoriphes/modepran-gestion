@@ -14,3 +14,5 @@ coverage/
 *.sql.gz
 *.rar
 *.tar.gz
+# Solo en el zip del traspaso (no publicar): detalles privados
+docs/infra/historial-correo-dominios-hosting.md

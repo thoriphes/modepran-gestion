@@ -2,8 +2,8 @@
 
 Estado a 2026-11-25. Para Claude: la primera parte es para explicársela a Miguel Ángel con palabras
 sencillas; la segunda es el detalle técnico. El historial completo de cómo se hizo está en
-[infra/historial-correo-dominios-hosting.md](infra/historial-correo-dominios-hosting.md) (escrito por Acción
-para su propio uso: tiene detalle técnico y nombres de herramientas).
+`infra/historial-correo-dominios-hosting.md`, **solo en el zip del traspaso** (no en el repo, que es público:
+contiene detalles privados de la red de Acción). Si no lo tienes, pídeselo a Acción.
 
 ## En palabras sencillas
 
