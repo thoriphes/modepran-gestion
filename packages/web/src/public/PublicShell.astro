@@ -1,0 +1,48 @@
+---
+/** Marco de la web pública de adopciones: cabecera cálida, contenido y pie. Sin fuentes ni analítica externas (RGPD). */
+import Base from '../layouts/Base.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  hero?: boolean;
+}
+const { title, description = 'Animales en adopción de la Protectora Modepran (Valencia · Carlet).', hero = false } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <div class="min-h-dvh bg-[#fbf6ef] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+    <header class="border-b border-accent-100/80 bg-[#fbf6ef]/90 backdrop-blur dark:border-stone-800 dark:bg-stone-950/90">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+        <a href="/adopta/" class="flex items-center gap-2">
+          <img src="/favicon.svg" alt="" class="size-8" />
+          <span class="font-display text-lg font-semibold">Protectora Modepran</span>
+        </a>
+        <nav class="text-sm">
+          <a href="/adopta/" class="rounded-full px-3 py-1.5 font-medium text-accent-800 hover:bg-accent-100 dark:text-accent-200 dark:hover:bg-stone-800">Adopta</a>
+        </nav>
+      </div>
+    </header>
+    {
+      hero && (
+        <section class="relative overflow-hidden">
+          <div class="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:pt-16">
+            <p class="text-sm font-semibold tracking-widest text-accent-700 uppercase dark:text-accent-300">Adopta, no compres</p>
+            <h1 class="font-display mt-2 max-w-2xl text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">Están esperando un hogar. ¿Será el tuyo?</h1>
+            <p class="mt-3 max-w-xl text-stone-600 dark:text-stone-400">
+              Perros, gatos y otros compañeros rescatados por la protectora en Valencia y Carlet. Todos llegan con su historia y muchas ganas de empezar otra contigo.
+            </p>
+          </div>
+          <div aria-hidden="true" class="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-accent-200/40 blur-3xl dark:bg-accent-900/20"></div>
+        </section>
+      )
+    }
+    <main class="mx-auto max-w-6xl px-4 pt-4 pb-16">
+      <slot />
+    </main>
+    <footer class="border-t border-accent-100/80 py-8 text-center text-sm text-stone-500 dark:border-stone-800">
+      <p>Protectora Modepran · Valencia · Carlet</p>
+      <p class="mt-1">Adoptar es un compromiso para toda la vida del animal.</p>
+    </footer>
+  </div>
+</Base>

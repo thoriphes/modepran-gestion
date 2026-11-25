@@ -106,6 +106,8 @@ export const CATALOG_TYPES: CatalogType[] = [
 
 export interface AnimalListItem extends Animal {
   thumbUrl?: string;
+  /** Solo con `withContacts=true` (listado de acogida/propietarios): contacto del último evento con contacto. */
+  lastContact?: Contact & { eventDate?: IsoDate; subtypeId?: string };
 }
 
 export interface AnimalDetail {

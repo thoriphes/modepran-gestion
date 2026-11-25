@@ -1,0 +1,10 @@
+---
+/** Ficha pública: /adopta/animal/?id=<n> (sitio estático, sin rutas dinámicas). */
+import PublicShell from '../../public/PublicShell.astro';
+import AdoptDetail from '../../public/AdoptDetail';
+---
+
+<PublicShell title="Adopta · Protectora Modepran">
+  <AdoptDetail client:load />
+  <noscript><p>Para ver la ficha activa JavaScript.</p></noscript>
+</PublicShell>
