@@ -10,6 +10,15 @@ y su propio Claude lleven el proyecto sin depender de Nacho.
 - La cuenta AWS `632115809125`, que ya es de la protectora (root `bienestar@modepran.net`).
 - El material de partida (`Work.rar`), que ya tiene él.
 
+## Antes del traspaso (cuando la app funcione)
+
+- Día del cambio hecho (ver docs/operacion.md): app vieja congelada, datos recargados.
+- Usuario **admin** de la app para Miguel Ángel (Administración → Usuarios) y altas del personal.
+- Logo real de la protectora en `packages/web/public/images/logo.png` (hoy hay uno provisional).
+- DNS en Squarespace (docs/despliegue.md): DKIM de SES para `modepran.net` y, si se quiere, el dominio
+  `gestion.protectoramodepran.com`.
+- Confirmar desde `bienestar@modepran.net` la suscripción a las alarmas (email de AWS SNS).
+
 ## Pasos el día del traspaso
 
 1. **Usuario de Identity Center para Miguel Ángel** (no un usuario IAM con access keys):
@@ -17,8 +26,9 @@ y su propio Claude lleven el proyecto sin depender de Nacho.
    permission set `AdministratorAccess` en la cuenta `632115809125`. Que active MFA en el primer login.
 2. En su equipo: instalar AWS CLI v2 y Claude Code, añadir el perfil `modepran` (bloque en
    [CLAUDE.md](CLAUDE.md) → Acceso AWS) y hacer `aws sso login --profile modepran`.
-3. Repo: transferir o crear el repositorio en la cuenta/organización GitHub de la protectora.
-   El rol OIDC de despliegue debe apuntar a ese repo.
+3. Repo: **transferir** `thoriphes/modepran-gestion` a la cuenta/organización GitHub de la protectora
+   (GitHub → Settings → Transfer). Después, cambiar en `packages/infra/lib/config.ts` el repo permitido por el
+   rol OIDC, redesplegar y volver a crear las variables `AWS_ROLE_ARN`/`AWS_REGION` en el repo nuevo.
 4. Comprobar que su Claude lee `CLAUDE.md` y que `aws sts get-caller-identity --profile modepran`
    devuelve su usuario.
 5. Revisar juntos [docs/preguntas.md](docs/preguntas.md): lo que siga abierto pasa a ser suyo.

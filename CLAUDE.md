@@ -17,13 +17,24 @@ Este directorio tiene que bastarse solo: no dependas de documentación de fuera 
 
 ## Estado (2026-11-25)
 
-- Análisis de funcionalidades: **hecho**. Preguntas de producto e infra: **respondidas** (quedan A13, C8 y
-  lo legal, que no bloquean).
-- Cuenta AWS `632115809125`: Identity Center, SSO `nacho`, budget 11 USD, CloudTrail, S3 Block Public Access.
-- Arquitectura **decidida**: Lambda + DynamoDB + Cognito + S3 + CloudFront, región **eu-north-1**.
-- Desarrollo arrancado el 2026-11-25 (Nacho: "sigue tus recomendaciones, ya ajustaremos"). Diseño en
-  `docs/spec.md`, plan en `docs/plan.md`, código en este mismo directorio (repo `thoriphes/modepran-gestion`).
-- Traspaso a Miguel Ángel **cuando la app funcione**.
+- **v1 desplegada** en https://d2xpy3de8d2jz5.cloudfront.net (interna en `/app/`, pública en `/adopta/`).
+  Monorepo en este directorio = repo privado `thoriphes/modepran-gestion` (se transfiere en el handoff).
+- **Datos de prueba reales cargados** desde el backup del 2026-11-19 (7.314 animales, 35.984 eventos, 6.241
+  contactos, 2,4 GB de ficheros). La app vieja se sigue usando: el día del cambio se repite la carga
+  ([docs/operacion.md](docs/operacion.md)).
+- Tests: dominio 138, API 56, migración 36, web 15. Probado de punta a punta en local; en producción
+  verificado API (invocación directa), web pública y login.
+- Pendiente: ver [docs/plan.md](docs/plan.md) → Pendientes. Traspaso a Miguel Ángel **cuando la app funcione**.
+
+## Estructura del repo
+
+| Paquete | Qué |
+|---|---|
+| `packages/domain` | Reglas de negocio puras (máquina de estados, censo, informes, plantillas, agenda, incidencias, permisos) |
+| `packages/api` | API Hono en Lambda; repositorio DynamoDB/memoria; servidor dev con datos sintéticos |
+| `packages/web` | Astro + React: app interna (`/app`) y web pública (`/adopta`) |
+| `packages/infra` | CDK: todo AWS |
+| `packages/migrate` | Migración desde la app vieja (Laravel/MariaDB) y siembra de catálogos |
 
 ## Reglas
 
@@ -77,4 +88,6 @@ output = json
 | [docs/fuentes.md](docs/fuentes.md) | Dónde está el código/BBDD viejos |
 | [docs/legal-rgpd.md](docs/legal-rgpd.md) | Protección de datos: qué se trata, dónde, medidas, plazos, borradores legales |
 | [docs/spec.md](docs/spec.md) | Diseño funcional y técnico de la app combinada |
-| [docs/plan.md](docs/plan.md) | Plan de implementación y estado de cada tarea |
+| [docs/plan.md](docs/plan.md) | Plan de implementación, estado y pendientes |
+| [docs/despliegue.md](docs/despliegue.md) | Recursos desplegados, migración hecha, usuarios, DNS pendiente |
+| [docs/operacion.md](docs/operacion.md) | Desarrollo local, desplegar, día del cambio, usuarios, logs |
