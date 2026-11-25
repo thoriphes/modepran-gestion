@@ -78,3 +78,10 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
   filtrable por **fecha**, **tipo de movimiento** (tipo/subtipo de evento), **animal** y demás campos útiles
   (centro, contacto…), con acceso a imprimir/descargar cada uno. Respetar permisos (Modevet solo
   veterinarios; Bienestar nada). No implementado todavía por decisión de Nacho.
+
+- **2026-11-25 — Correos de AWS a `bienestar@modepran.net` no llegan.** El email de Identity Center para
+  poner contraseña no llegó (ni en spam). Probable retención de Google Workspace (cuarentena del admin o
+  filtro). Importa porque a ese buzón van el presupuesto, las anomalías de coste y las alarmas (la
+  suscripción SNS hay que confirmarla por email). Revisar en Google Admin → Informes / Cuarentena y
+  añadir a lista blanca `*.amazonaws.com`, `login.awsapps.com`, `verificationemail.com`; si no, cambiar el
+  destino de las alertas a otro buzón.
