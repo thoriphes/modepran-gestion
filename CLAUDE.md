@@ -10,10 +10,30 @@ dos webapps actuales y unirlas en una sola:
 
 El código viejo **no se reutiliza**: solo su funcionalidad, ya analizada en `docs/feature-set.md`.
 
-**Responsable del proyecto: Miguel Ángel** (`bienestar@modepran.net`). Lo arrancó Nacho Roca
-(voluntario) y se le entregará entero a Miguel Ángel y a su Claude ([HANDOFF.md](HANDOFF.md)).
-Este directorio tiene que bastarse solo: no dependas de documentación de fuera de él salvo
-`../MODEPRAN.md` (historial del hosting Plesk y del correo, solo como contexto).
+**Responsable del proyecto: Miguel Ángel** (`bienestar@modepran.net`). Lo arrancó y lo diseñó
+**Nacho Roca**, voluntario, a quien **Miguel Ángel llama "Acción"** (usa ese nombre al hablar con él).
+Se le entrega entero a Miguel Ángel y a su Claude ([HANDOFF.md](HANDOFF.md)). Este directorio se basta
+solo: todo lo de Modepran (app, AWS, correo, dominios, hosting antiguo) está aquí, en `docs/`.
+
+## Cómo hablar con Miguel Ángel y la protectora (IMPORTANTE)
+
+Su perfil es **cero técnico**. Háblales como a alguien que no sabe nada de informática:
+
+- **Lenguaje llano, sin jerga.** Nada de "deploy", "Lambda", "DynamoDB", "bucket", "commit", "DNS"…
+  Di "publicar la nueva versión", "la base de datos", "el almacén de fotos", "la configuración del
+  dominio". Si una palabra técnica es inevitable, explícala en una frase.
+- **Haz tú el trabajo técnico.** No le pidas que abra terminales, edite ficheros o ejecute comandos. Si
+  hace falta algo que solo puede hacer él (entrar con su contraseña, pulsar un botón en una web), dale
+  **pasos numerados, uno por línea, diciendo exactamente qué botón pulsar** y qué verá en pantalla.
+- **Respuestas cortas**, primero lo que importa ("ya está", "no se puede porque…", "necesito que…").
+- Confirma antes de cualquier cosa que cueste dinero, borre datos o afecte a la app que usa el personal.
+
+**Dudas de arquitectura → a Acción.** Si surge cualquier decisión de arquitectura o de fondo (cambiar de
+servicio o de región, base de datos, costes, seguridad, permisos/perfiles, modelo de datos, dominios,
+correo, hosting de la web, migraciones, traspaso de cuentas), **no la decidas tú ni le pidas a Miguel Ángel
+que la decida**: dile que se la pregunte a Acción y **redáctale el mensaje** listo para reenviar (qué
+pasa, qué opciones hay y qué recomiendas, en 5-10 líneas). Los cambios pequeños de la app (textos,
+pantallas, catálogos, errores) sí los haces tú.
 
 ## Estado (2026-11-25)
 
@@ -81,6 +101,7 @@ output = json
 | Doc | Leer cuando |
 |---|---|
 | [HANDOFF.md](HANDOFF.md) | Se traspasa el proyecto a Miguel Ángel, o arranca un Claude nuevo |
+| [docs/infraestructura.md](docs/infraestructura.md) | Correo, dominios, web WordPress, hosting antiguo, cuentas: qué hay y qué falta (fuera de la app) |
 | [docs/preguntas.md](docs/preguntas.md) | **Antes de decidir nada**: decisiones abiertas con propuesta por defecto y respuestas |
 | [docs/feature-set.md](docs/feature-set.md) | Qué hacen las dos apps actuales, modelo de datos, reglas de negocio, propuesta de unión |
 | [docs/arquitectura.md](docs/arquitectura.md) | Stack AWS, modelo DynamoDB, costes |

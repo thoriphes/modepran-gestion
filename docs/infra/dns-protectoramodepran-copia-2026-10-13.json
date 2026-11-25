@@ -1,0 +1,286 @@
+{
+    "ResourceRecordSets": [
+        {
+            "Name": "protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "protectoramodepran.com.",
+            "Type": "MX",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "1 smtp.google.com."
+                }
+            ]
+        },
+        {
+            "Name": "protectoramodepran.com.",
+            "Type": "NS",
+            "TTL": 172800,
+            "ResourceRecords": [
+                {
+                    "Value": "ns-1768.awsdns-29.co.uk."
+                },
+                {
+                    "Value": "ns-20.awsdns-02.com."
+                },
+                {
+                    "Value": "ns-906.awsdns-49.net."
+                },
+                {
+                    "Value": "ns-1397.awsdns-46.org."
+                }
+            ]
+        },
+        {
+            "Name": "protectoramodepran.com.",
+            "Type": "SOA",
+            "TTL": 900,
+            "ResourceRecords": [
+                {
+                    "Value": "ns-1768.awsdns-29.co.uk. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+                }
+            ]
+        },
+        {
+            "Name": "protectoramodepran.com.",
+            "Type": "TXT",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "\"v=spf1 include:_spf.google.com ip4:5.9.54.125 -all\""
+                },
+                {
+                    "Value": "\"google-site-verification=u9QBJ93JC9_pBWev80AzutCZvIPrBfE4wwCU1mVYFNs\""
+                }
+            ]
+        },
+        {
+            "Name": "_dmarc.protectoramodepran.com.",
+            "Type": "TXT",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "\"v=DMARC1; p=none\""
+                }
+            ]
+        },
+        {
+            "Name": "_domainkey.protectoramodepran.com.",
+            "Type": "TXT",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "\"o=-\""
+                }
+            ]
+        },
+        {
+            "Name": "default._domainkey.protectoramodepran.com.",
+            "Type": "TXT",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "\"v=DKIM1; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1JNJ4XloerEGxtAVwR3zMuhpAEkZ/XMefWxA2C9UdYI/SZsqaykfwadYkrR7ZyYRZImU34l23ZlGHU+PqmqdVwj9/lyzm7doGHaNUMcit6t++EHm400Y4o77KetC4N+xtUdOjnIM8WNzDJSQnxs6IZlGhqDCRump+33aGcrlVHzxrVCrD0G41FK1nSDcOLs0GHj88vAa\" \"dpyaia4vsrXONNGERY2kqdAkkNIQhYY0lZaONWW4527iDeDlR1ErL+KiMPgZL74HNFokvNjfeEH+/u7lnm+6crjCkykbL93A/VoAZdtHcJe18IjE8ur2qfwAaEwRFx45AMkbcBN35KkxIQIDAQAB;\""
+                }
+            ]
+        },
+        {
+            "Name": "app.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "18.208.168.169"
+                }
+            ]
+        },
+        {
+            "Name": "censo-api.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "censo.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "donarpaypal.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "ftp.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "hotel.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "imap.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "mail.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "modevet.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "mysql.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "nueva.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "old.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "panel.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "pop3.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "residencia.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "smtp.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "spfp09226.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "136.243.205.226"
+                }
+            ]
+        },
+        {
+            "Name": "webmail.protectoramodepran.com.",
+            "Type": "A",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "5.9.54.125"
+                }
+            ]
+        },
+        {
+            "Name": "www.protectoramodepran.com.",
+            "Type": "CNAME",
+            "TTL": 600,
+            "ResourceRecords": [
+                {
+                    "Value": "protectoramodepran.com."
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,333 @@
+{
+ "Comment": "Replica de la zona Plesk 2026-09-11 + TXT verificacion Google",
+ "Changes": [
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "www.protectoramodepran.com.",
+    "Type": "CNAME",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "protectoramodepran.com."
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "protectoramodepran.com.",
+    "Type": "MX",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "10 pop3.protectoramodepran.com."
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "protectoramodepran.com.",
+    "Type": "TXT",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "\"v=spf1 +a +mx +a:p09-eu125.activaserver.com -all\""
+     },
+     {
+      "Value": "\"google-site-verification=u9QBJ93JC9_pBWev80AzutCZvIPrBfE4wwCU1mVYFNs\""
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "_dmarc.protectoramodepran.com.",
+    "Type": "TXT",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "\"v=DMARC1; p=none\""
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "_domainkey.protectoramodepran.com.",
+    "Type": "TXT",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "\"o=-\""
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "default._domainkey.protectoramodepran.com.",
+    "Type": "TXT",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "\"v=DKIM1; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1JNJ4XloerEGxtAVwR3zMuhpAEkZ/XMefWxA2C9UdYI/SZsqaykfwadYkrR7ZyYRZImU34l23ZlGHU+PqmqdVwj9/lyzm7doGHaNUMcit6t++EHm400Y4o77KetC4N+xtUdOjnIM8WNzDJSQnxs6IZlGhqDCRump+33aGcrlVHzxrVCrD0G41FK1nSDcOLs0GHj88vAa\" \"dpyaia4vsrXONNGERY2kqdAkkNIQhYY0lZaONWW4527iDeDlR1ErL+KiMPgZL74HNFokvNjfeEH+/u7lnm+6crjCkykbL93A/VoAZdtHcJe18IjE8ur2qfwAaEwRFx45AMkbcBN35KkxIQIDAQAB;\""
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "spfp09226.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "136.243.205.226"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "app.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "18.208.168.169"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "pop3.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "smtp.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "imap.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "mail.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "webmail.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "ftp.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "mysql.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "panel.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "donarpaypal.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "hotel.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "residencia.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "censo.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "censo-api.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "nueva.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "old.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  },
+  {
+   "Action": "UPSERT",
+   "ResourceRecordSet": {
+    "Name": "modevet.protectoramodepran.com.",
+    "Type": "A",
+    "TTL": 600,
+    "ResourceRecords": [
+     {
+      "Value": "5.9.54.125"
+     }
+    ]
+   }
+  }
+ ]
+}
