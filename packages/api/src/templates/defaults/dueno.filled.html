@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>[TITULO_REGISTRO] [HISTORIAL_ID]</title>
+    <style>
+        /* Base: emula lo que los documentos usan de Bootstrap 5 (sin CDN por la CSP) */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #212529; background: #fff; }
+        h1, h2, h3, h4, h5 { margin-top: 0; margin-bottom: .5rem; font-weight: 500; line-height: 1.2; }
+        h1 { font-size: 2.5rem; }
+        h3 { font-size: 1.75rem; }
+        h4 { font-size: 1.5rem; }
+        h5 { font-size: 1.25rem; }
+        p { margin-top: 0; margin-bottom: 1rem; }
+        ul { margin-top: 0; margin-bottom: 1rem; padding-left: 2rem; }
+        hr { margin: 1rem 0; color: inherit; border: 0; border-top: 1px solid; opacity: .25; }
+        small { font-size: .875em; }
+        img { vertical-align: middle; max-width: 100%; }
+        .row { display: flex; flex-wrap: wrap; margin-left: -12px; margin-right: -12px; }
+        .row > * { flex-shrink: 0; width: 100%; max-width: 100%; padding-left: 12px; padding-right: 12px; }
+        .col { flex: 1 0 0%; }
+        .col-12 { flex: 0 0 auto; width: 100%; }
+        .mt-3 { margin-top: 1rem !important; }
+        .mt-5 { margin-top: 3rem !important; }
+        /* Iconos (sustituyen a Font Awesome) */
+        .fa-solid { display: inline-block; font-style: normal; line-height: 1; }
+        .fa-check::before { content: "\2714"; }
+        .fa-exclamation-triangle::before { content: "\26A0"; }
+        /* Impresión A4 */
+        @page { size: A4; margin: 12mm; }
+        .firma { break-inside: avoid; page-break-inside: avoid; }
+        @media print {
+            .page-break { page-break-before: always; break-before: page; }
+        }
+        /* Documento */
+        #printdoc { margin: auto; padding: 20px; padding-top: 0; max-width: 1000px; }
+        .image-container { background-color: #e5e5e5; margin: auto; width: 250px; height: 250px; max-width: 100%; display: flex; justify-content: center; align-items: center; box-shadow: 4px 2px 13px #00000045; border: 5px solid #FFF; }
+        .image-container img { max-width: 100%; max-height: 100%; }
+        p, span { font-size: small; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+<div id="printdoc">
+    <h1 style="padding-top: 20px;">[TITULO_REGISTRO_CON_SUBTIPO]</h1>
+    <div class="row">
+        <div class="col">
+            <p>HISTORIAL ID: <strong>[HISTORIAL_ID]</strong></p>
+            <p>Fecha: <strong>[FECHA_HISTORIAL_DM]</strong></p>
+        </div>
+        <div class="col">
+            <img src="[LOGO_URL]" style="float: right" alt="Logo">
+        </div>
+    </div>
+    <h3 style="margin-bottom: 0">Animal</h3>
+    <hr style="margin-top: 0">
+    <div class="row">
+        <div class="col">
+            <p>Id: <strong>[ANIMAL_ID]</strong></p>
+            <p>Nombre: <strong>[ANIMAL_NOMBRE]</strong></p>
+            <p>Especie: <strong>[ESPECIE]</strong></p>
+            <p>Raza: <strong>[RAZA]</strong></p>
+            <p>Color: <strong>[COLOR]</strong></p>
+            <p>Género: <strong>[GENERO]</strong></p>
+            <br><br>
+            <p>Centro: <strong>[CENTRO]</strong></p>
+            <p>Nacido: <strong>[NACIDO_FECHA]</strong></p><br>
+        </div>
+        <div class="col">
+            [BLOQUE_CHECK_ESTERILIZADO]
+            [BLOQUE_PPP]
+            [BLOQUE_COMPAT_PERROS]
+            [BLOQUE_COMPAT_GATOS]
+            [BLOQUE_CHIP]
+        </div>
+    </div>
+    <br>
+    <h3 style="margin-bottom: 0">Destino</h3>
+    <hr style="margin-top: 0">
+    <div class="row firma">
+        <div class="col">
+            <p>Nombre: <strong>[CONTACTO_NOMBRE]</strong></p>
+            <p>Apellidos: <strong>[CONTACTO_APELLIDOS]</strong></p>
+            <p>DNI/CIF: <strong>[CONTACTO_NIF]</strong></p>
+            <p>Teléfono: <strong>[CONTACTO_TELEFONO]</strong></p>
+            <p>Email: <strong>[CONTACTO_EMAIL]</strong></p>
+        </div>
+        <div class="col">
+            <p>Dirección: <strong>[CONTACTO_DIRECCION]</strong></p>
+            <p>Provincia: <strong>[CONTACTO_PROVINCIA]</strong></p>
+            <p>CP: <strong>[CONTACTO_CP]</strong></p>
+            <p>Ciudad: <strong>[CONTACTO_CIUDAD]</strong></p>
+            <h5 style="padding-top: 15px">FIRMA</h5>
+            <hr style="margin-top: 90px">
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,7 +1,25 @@
-// STUB provisional (P4, infra): permite que `cdk synth` empaquete la Lambda antes de que exista la API.
-// La tarea de la API (P3) lo sustituye por el handler real de Hono (`hono/aws-lambda`).
-export const handler = async (): Promise<{ statusCode: number; headers: Record<string, string>; body: string }> => ({
-  statusCode: 501,
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ error: { code: 'not_implemented', message: 'API pendiente de implementar' } }),
+/** Handler de Lambda (API Gateway HTTP API → Hono). Deps reales desde el entorno. */
+import { handle } from 'hono/aws-lambda';
+import { createApp } from './app.js';
+import { lambdaAuth } from './auth.js';
+import { createS3FileStore } from './files.js';
+import { createDynamoRepository } from './repo/dynamo.js';
+import { createCognitoUserDirectory } from './users.js';
+
+function env(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`Falta la variable de entorno ${name}`);
+  return v;
+}
+
+const region = process.env.AWS_REGION;
+const app = createApp({
+  repo: createDynamoRepository({ tableName: env('TABLE_NAME'), ...(region ? { region } : {}) }),
+  files: createS3FileStore({ bucket: env('FILES_BUCKET'), ...(region ? { region } : {}) }),
+  users: createCognitoUserDirectory({ userPoolId: env('USER_POOL_ID'), ...(region ? { region } : {}) }),
+  auth: lambdaAuth,
+  // Logo servido por la web en el mismo dominio (APP_ORIGIN).
+  logoUrl: `${process.env.APP_ORIGIN ?? ''}/images/logo.png`,
 });
+
+export const handler = handle(app);

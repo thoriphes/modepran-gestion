@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Contrato de adopción</title>
+    <style>
+        /* Base: emula lo que los documentos usan de Bootstrap 5 (sin CDN por la CSP) */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #212529; background: #fff; }
+        h1, h2, h3, h4, h5 { margin-top: 0; margin-bottom: .5rem; font-weight: 500; line-height: 1.2; }
+        h1 { font-size: 2.5rem; }
+        h3 { font-size: 1.75rem; }
+        h4 { font-size: 1.5rem; }
+        h5 { font-size: 1.25rem; }
+        p { margin-top: 0; margin-bottom: 1rem; }
+        ul { margin-top: 0; margin-bottom: 1rem; padding-left: 2rem; }
+        hr { margin: 1rem 0; color: inherit; border: 0; border-top: 1px solid; opacity: .25; }
+        small { font-size: .875em; }
+        img { vertical-align: middle; max-width: 100%; }
+        .row { display: flex; flex-wrap: wrap; margin-left: -12px; margin-right: -12px; }
+        .row > * { flex-shrink: 0; width: 100%; max-width: 100%; padding-left: 12px; padding-right: 12px; }
+        .col { flex: 1 0 0%; }
+        .col-12 { flex: 0 0 auto; width: 100%; }
+        .mt-3 { margin-top: 1rem !important; }
+        .mt-5 { margin-top: 3rem !important; }
+        /* Iconos (sustituyen a Font Awesome) */
+        .fa-solid { display: inline-block; font-style: normal; line-height: 1; }
+        .fa-check::before { content: "\2714"; }
+        .fa-exclamation-triangle::before { content: "\26A0"; }
+        /* Impresión A4 */
+        @page { size: A4; margin: 12mm; }
+        .firma { break-inside: avoid; page-break-inside: avoid; }
+        @media print {
+            .page-break { page-break-before: always; break-before: page; }
+        }
+        /* Documento */
+        #printdoc { margin: auto; padding: 20px; padding-top: 15px; max-width: 1000px; }
+        .image-container { background-color: #e5e5e5; margin: auto; width: 250px; height: 250px; max-width: 100%; display: flex; justify-content: center; align-items: center; box-shadow: 4px 2px 13px #00000045; border: 5px solid #FFF; }
+        .image-container img { max-width: 100%; max-height: 100%; }
+        p, span, ul { font-size: small; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+<div id="printdoc">
+    <div class="row">
+        <img src="[LOGO_URL]" style="margin: auto; max-width: 250px;" alt="Logo">
+        <p style="text-align: right">Valencia,            </p>
+        <div>[LANG_ADOPTION_TEXT_TOP]</div>
+    </div>
+    <h3 style="margin-bottom: 0">Animal</h3>
+    <hr style="margin-top: 0">
+    <div class="row">
+        <div class="col">
+            <div class="image-container">
+                <!-- Pegar aquí la foto del animal -->
+            </div>
+        </div>
+        <div class="col">
+            <p>Id: <strong>           </strong></p>
+            <p>Nombre: <strong>           </strong></p>
+            <p>Especie: <strong>           </strong></p>
+            <p>Raza: <strong>           </strong></p>
+            <p>Color: <strong>           </strong></p>
+            <p>Género: <strong>           </strong></p>
+            <br>
+            <p>Tamaño: <strong>           </strong></p>
+            <p>Estado: <strong>           </strong></p>
+            <p>Nacido: <strong>           </strong></p><br>
+        </div>
+        <div class="col">
+            <!-- Marcar a mano los campos que correspondan -->
+            <span><i class="fa-solid fa-check"></i> <strong>Esterilizado</strong></span><br>
+            <span><i class="fa-solid fa-exclamation-triangle"></i> <strong>PPP</strong></span><br>
+            <span><i class="fa-solid fa-check"></i> <strong>Compatible Perros</strong></span><br>
+            <span><i class="fa-solid fa-check"></i> <strong>Compatible Gatos</strong></span><br>
+            <h5 style="margin-bottom: 0; padding-top: 15px;">Chip</h5>
+            <hr style="margin-top: 0">
+            <span>Número: <strong>           </strong></span><br>
+            <span>Notas: <strong>           </strong></span><br>
+        </div>
+    </div>
+    <br><br>
+    <h3 style="margin-bottom: 0; text-align: center;">CONTRATO DE ADOPCIÓN</h3>
+    <hr style="margin-top: 0">
+    <div>[LANG_ADOPTION_TEXT]</div>
+    <div class="row firma">
+        <div class="col">
+            <h5 style="padding-top: 15px">FIRMA Y SELLO DE MODEPRAN</h5>
+            <hr style="margin-top: 120px">
+        </div>
+        <div class="col">
+            <h5 style="padding-top: 15px">FIRMA DEL ADOPTANTE</h5>
+            <hr style="margin-top: 120px">
+        </div>
+    </div>
+    <p style="margin-top: 0; font-size: 12px;">[LANG_COMPLIANCE]</p>
+    <p><strong><u>* ANEXAR FOTOCOPIA DNI *</u></strong></p>
+    <div class="page-break"></div>
+    <h3 style="margin-bottom: 0">ACUERDO DE COMPROMISO</h3>
+    <hr style="margin-top: 0">
+    <div>
+    [LANG_ADOPTION_ENGAGEMENT_1]
+    [LANG_ADOPTION_ENGAGEMENT_STERILIZED]
+    [LANG_ADOPTION_ENGAGEMENT_2]
+    </div>
+    <br>
+    <p>Valencia,            </p>
+    <div class="row firma">
+        <div class="col">
+            <h5 style="padding-top: 15px">FIRMA Y SELLO DE MODEPRAN</h5>
+            <hr style="margin-top: 120px">
+        </div>
+        <div class="col">
+            <h5 style="padding-top: 15px">FIRMA DEL ADOPTANTE</h5>
+            <hr style="margin-top: 120px">
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <h3 style="margin-bottom: 0; text-align: center;">INFORMACIÓN BÁSICA SOBRE PROTECCIÓN DE DATOS</h3>
+    <h4 style="margin-bottom: 0; text-align: center;">MODEPRAN</h4>
+    <hr style="margin-top: 0">
+    <div>[LANG_LOPD]</div>
+</div>
+</body>
+</html>

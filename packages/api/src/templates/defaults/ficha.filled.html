@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Ficha [ANIMAL_NOMBRE] [ANIMAL_ID]</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        @page { size: A4; margin: 12mm; }
+        body { font-family: "DejaVu Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #3e5569; background: #fff; margin: 0; padding: 0; }
+        p { margin: 0 0 4px 0; }
+        img { max-width: 100%; }
+        .ficha-page { page-break-inside: avoid; break-inside: avoid; }
+        .history-page { page-break-before: always; break-before: page; }
+        .header { border-bottom: 1px solid #dee2e6; padding-bottom: 4px; margin-bottom: 6px; }
+        table.header-row { width: 100%; border-collapse: collapse; }
+        .header-name { text-align: left; vertical-align: middle; width: 70%; }
+        .header-id { text-align: right; vertical-align: middle; color: #6c757d; font-size: 14px; white-space: nowrap; }
+        .header h1 { font-size: 24px; font-weight: bold; margin: 0; line-height: 1.2; color: inherit; }
+        .section-title { font-size: 18px; font-weight: bold; border-bottom: 1px solid #dee2e6; padding-bottom: 6px; margin: 0 0 8px 0; }
+        table.layout { width: 100%; border-collapse: collapse; }
+        table.layout > tbody > tr > td, table.layout > tr > td { vertical-align: top; padding: 0 8px; width: 50%; }
+        table.photo-frame { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+        .photo-frame-cell { width: 100%; height: 400px; background: #e5e5e5; border: 5px solid #fff; text-align: center; vertical-align: middle; padding: 8px; }
+        .photo-frame-cell img { height: 384px; width: auto; max-width: 100%; object-fit: contain; }
+        .label { display: block; font-size: 14px; font-weight: bold; color: #3e5569; margin: 2px 0 0 0; line-height: 1.2; }
+        .field { border: 1px solid #e9ecef; background: #f8f9fa; padding: 1px 8px; margin: 0 0 3px 0; font-size: 14px; line-height: 1.25; color: #3e5569; min-height: 20px; }
+        .checks { margin-top: 8px; font-size: 14px; }
+        .checks h5 { font-size: 14px; font-weight: bold; margin: 6px 0 0 0; }
+        .checks hr { border: 0; border-top: 1px solid #dee2e6; margin: 4px 0; }
+        .fa-solid { display: inline-block; font-style: normal; line-height: 1; color: #28a745; }
+        .fa-check::before { content: "\2714"; }
+        .fa-exclamation-triangle::before { content: "\26A0"; color: #dc3545; }
+        table.switch-grid { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        table.switch-grid td { width: 50%; padding: 0 6px 4px 0; vertical-align: top; }
+        .box { display: inline-block; width: 12px; height: 12px; border: 1px solid #3e5569; margin: 0 4px 0 8px; vertical-align: middle; }
+        /* Tabla del historial (la genera la API) */
+        .history-page table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        .history-page th { background: #7460ee; color: #fff; font-size: 12px; padding: 8px 6px; text-align: left; }
+        .history-page td { border-bottom: 1px solid #e9ecef; font-size: 12px; padding: 8px 6px; vertical-align: top; }
+        .history-page tr { page-break-inside: avoid; break-inside: avoid; }
+        .history-page td p { margin: 0 0 4px 0; font-size: 12px; line-height: 1.5; }
+        .history-page .empty-text { color: #6c757d; font-size: 14px; }
+        .history-blank td { height: 44px; }
+    </style>
+</head>
+<body>
+<div class="ficha-page">
+    <div class="header">
+        <table class="header-row">
+            <tr>
+                <td class="header-name">
+                    <h1>[ANIMAL_NOMBRE]</h1>
+                </td>
+                <td class="header-id">
+                    Ficha · ID: [ANIMAL_ID]
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="photo-frame">
+        <tr>
+            <td class="photo-frame-cell">
+                <img src="[FOTO_ANIMAL_URL]" alt="Foto del animal">
+            </td>
+        </tr>
+    </table>
+
+    <table class="layout">
+        <tr>
+            <td>
+                <span class="label">Nombre</span>
+                <div class="field">[ANIMAL_NOMBRE]</div>
+                <span class="label">Especie</span>
+                <div class="field">[ESPECIE]</div>
+                <span class="label">Raza</span>
+                <div class="field">[RAZA]</div>
+                <span class="label">Color</span>
+                <div class="field">[COLOR]</div>
+                <span class="label">Género</span>
+                <div class="field">[GENERO]</div>
+                <span class="label">Peso (kg)</span>
+                <div class="field">[PESO]</div>
+                <span class="label">Tamaño</span>
+                <div class="field">[TAMANO]</div>
+            </td>
+            <td>
+                <span class="label">Estado</span>
+                <div class="field">[ESTADO]</div>
+                <span class="label">Centro</span>
+                <div class="field">[CENTRO]</div>
+                <span class="label">Nacido</span>
+                <div class="field">[NACIDO_FECHA]</div>
+                <span class="label">Edad estimada</span>
+                <div class="field">[EDAD_ESTIMADA]</div>
+                <div class="checks">
+            [BLOQUE_CHECK_ESTERILIZADO]
+            [BLOQUE_PPP]
+            [BLOQUE_COMPAT_PERROS]
+            [BLOQUE_COMPAT_GATOS]
+            [BLOQUE_CHIP]
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="history-page">
+    <h2 class="section-title">Historial de [ANIMAL_NOMBRE] : [ANIMAL_ID]</h2>
+    [BLOQUE_HISTORIAL]
+</div>
+</body>
+</html>
