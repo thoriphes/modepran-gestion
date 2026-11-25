@@ -47,7 +47,7 @@ por CloudFront (CDN global): solo cachea la parte pública (sin datos personales
 
 ## 4. Medidas de seguridad (art. 32) que implementa la app
 
-- Login individual por persona (Cognito), contraseña ≥12 caracteres, **MFA disponible** (recomendado activarlo en las cuentas admin; Cognito no permite exigirlo solo a un grupo: pendiente técnico).
+- Login individual por persona (Cognito), contraseña ≥8 caracteres (mayúscula, minúscula y número), **MFA disponible** (recomendado activarlo en las cuentas admin; Cognito no permite exigirlo solo a un grupo: pendiente técnico).
 - Perfiles con permisos mínimos: **Carlet**, **Modevet**, **Bienestar**, **Admin** (ver spec). Bienestar no ve
   datos de adoptantes; Modevet solo ve sus citas y las derivaciones.
 - **Auditoría** de solo inserción: quién crea, cambia, exporta o borra cada registro.

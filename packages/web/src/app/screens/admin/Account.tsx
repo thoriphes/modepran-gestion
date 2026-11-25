@@ -50,7 +50,7 @@ export default function Account() {
             <div>
               <h3 className="font-semibold">Contraseña</h3>
               <p className="mt-1 text-stone-600 dark:text-stone-400">
-                La contraseña se cambia en la página de acceso segura (Cognito): te enviará un código por correo para poner una nueva. Mínimo 12 caracteres.
+                La contraseña se cambia en la página de acceso segura (Cognito): te enviará un código por correo para poner una nueva. Mínimo 8 caracteres, con mayúscula, minúscula y número.
               </p>
               {passwordUrl ? (
                 <a href={passwordUrl} className="mt-2 inline-flex rounded-lg bg-accent-600 px-3.5 py-2 font-medium text-white hover:bg-accent-700">

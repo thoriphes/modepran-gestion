@@ -225,7 +225,7 @@ Solo inserción. Visible para admin con filtros.
   redimensiona (700 px + miniatura 200 px) antes de subir.
 - **Auth**: API Gateway JWT authorizer (Cognito) en `/api/*` salvo `/api/public/*`; la Lambda lee
   `cognito:groups` para permisos. Usuarios: admin los crea desde la app (AdminCreateUser + grupo; Cognito
-  envía la invitación). Contraseña ≥12; MFA TOTP opcional (obligatorio recomendado para admin).
+  envía la invitación). Contraseña ≥8 (mayúscula, minúscula y número; decisión de Nacho 2026-11-25); MFA TOTP opcional (obligatorio recomendado para admin).
 - **Entornos**: un solo entorno `prod` en v1 (coste 0 de mantener dos no compensa todavía); dev local con
   repositorio en memoria y datos sintéticos.
 - **Sin datos reales** en el repo ni en tests. Datos sintéticos en `packages/api/src/dev/seed.ts`.

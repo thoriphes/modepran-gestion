@@ -173,7 +173,7 @@ export class ModepranStack extends cdk.Stack {
         fullname: { required: false, mutable: true },
       },
       passwordPolicy: {
-        minLength: 12,
+        minLength: 8,
         requireLowercase: true,
         requireUppercase: true,
         requireDigits: true,
