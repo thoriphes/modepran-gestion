@@ -7,7 +7,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
 |---|---|---|---|---|
 | P1 | Esqueleto del monorepo, repo privado `thoriphes/modepran-gestion`, dependencias | raíz | — | 🟨 |
 | P2 | Dominio: tipos, máquina de estados, efectos de eventos, censo, placeholders, agenda, incidencias, permisos + tests | `packages/domain` | P1 | ✅ |
-| P3 | API Hono: repositorio (memoria + DynamoDB), rutas de spec §9, auth por grupos, auditoría, seed sintético, tests | `packages/api` | P2 | ⬜ |
+| P3 | API Hono: repositorio (memoria + DynamoDB), rutas de spec §9, auth por grupos, auditoría, seed sintético, tests | `packages/api` | P2 | ✅ (código; sin desplegar) |
 | P4 | Infra CDK: DynamoDB, S3, CloudFront, API GW, Lambda, Cognito, SES, alarmas, OIDC GitHub | `packages/infra` | P1 | ✅ (código; sin desplegar) |
 | P5 | Migración: parser del volcado MariaDB, mapeo a dominio, carga a DynamoDB/S3, dry-run y verificación | `packages/migrate` | P2, P3 (repo) | ✅ (`load` sin ejecutar contra AWS) |
 | P6 | Frontal: login, fichas, historial, contactos, documentos, informes/Excel, agenda, incidencias, admin, web pública | `packages/web` | P3 (contrato) | ⬜ |
@@ -31,3 +31,10 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
   66 contactos (sin guardián), 548 contactos sin nombre, 309 animales cuyo estado guardado no es el del último
   evento por **fecha** (sí por id: la app vieja usaba el orden de inserción; al borrar un evento el dominio
   recalcularía por fecha), 10 con el centro igual. Ficheros: 16.517 a subir (2,3 GB), 0 ausentes, 46 huérfanos.
+- P3 (API): contrato en `packages/api/README.md`. Decisiones: documentos = HTML ya renderizado en el servidor
+  (`{slug,title,html}`); la ficha añade `[BLOQUE_HISTORIAL]`; adjuntos de eventos con nombre
+  `animals/<id>/events/<uuid>.<ext>` (el id del evento no existe al subir); fotos de incidencia se suben tras el
+  alta (`photo-upload-url` + `POST /incidents/:id/photos`); `GET /documents/event/:id` admite `?animalId=` (sin él
+  recorre todos los eventos); Modevet ve solo contactos `cliente_modevet` (se crean desde citas de animales externos);
+  `cognito:groups` del authorizer JWT llega como `"[a b]"` y se parsea en la API. Pendiente: `staffId` de usuario
+  (no hay atributo en Cognito), plantillas: revisar 2 teléfonos borrados en `adoption_anex3` (¿de la protectora?).
