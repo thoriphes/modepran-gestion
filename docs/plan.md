@@ -6,7 +6,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
 | # | Tarea | Paquete | Depende de | Estado |
 |---|---|---|---|---|
 | P1 | Esqueleto del monorepo, repo privado `thoriphes/modepran-gestion`, dependencias | raíz | — | 🟨 |
-| P2 | Dominio: tipos, máquina de estados, efectos de eventos, censo, placeholders, agenda, incidencias, permisos + tests | `packages/domain` | P1 | ⬜ |
+| P2 | Dominio: tipos, máquina de estados, efectos de eventos, censo, placeholders, agenda, incidencias, permisos + tests | `packages/domain` | P1 | ✅ |
 | P3 | API Hono: repositorio (memoria + DynamoDB), rutas de spec §9, auth por grupos, auditoría, seed sintético, tests | `packages/api` | P2 | ⬜ |
 | P4 | Infra CDK: DynamoDB, S3, CloudFront, API GW, Lambda, Cognito, SES, alarmas, OIDC GitHub | `packages/infra` | P1 | ✅ (código; sin desplegar) |
 | P5 | Migración: parser del volcado MariaDB, mapeo a dominio, carga a DynamoDB/S3, dry-run y verificación | `packages/migrate` | P2, P3 (repo) | ⬜ |
@@ -20,3 +20,6 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
 - Sin datos reales en el repo. El volcado y los ficheros viejos se leen desde una carpeta temporal fuera de
   Nextcloud (ver fuentes.md).
 - Lo que quede fuera o a medias se anota aquí con ⛔ y el motivo.
+- P2 (dominio): decisiones ante ambigüedades anotadas en los comentarios de cabecera de cada módulo de
+  `packages/domain/src` (censo al final del día, salidas del Excel de gestión, sexo "none", rangos inclusivos,
+  orden de eventos, primer evento por orden de registro, reagendar tras "no presentado"…).
