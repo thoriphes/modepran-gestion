@@ -47,7 +47,7 @@ pantallas, catálogos, errores) sí los haces tú.
 ## Estado (2026-11-25)
 
 - **v1 desplegada** en https://d2xpy3de8d2jz5.cloudfront.net (interna en `/app/`, pública en `/adopta/`).
-  Monorepo en este directorio = repo privado `thoriphes/modepran-gestion` (se transfiere en el handoff).
+  Monorepo en este directorio = repo **público** `thoriphes/modepran-gestion` (https://github.com/thoriphes/modepran-gestion) (se transfiere en el handoff).
 - **Datos de prueba reales cargados** desde el backup del 2026-11-19 (7.314 animales, 35.984 eventos, 6.241
   contactos, 2,4 GB de ficheros). La app vieja se sigue usando: el día del cambio se repite la carga
   ([docs/operacion.md](docs/operacion.md)).

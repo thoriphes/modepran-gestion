@@ -46,7 +46,7 @@ pregunte a Acción. Ofrécele redactar el mensaje.
 | Squarespace Domains | `bienestar@modepran.net` | Registrador y DNS de los dos dominios. DNS: `nse1-4.squarespacedns.com` |
 | Activaserver / ANW (Plesk) | Panel `p09-eu125.activaserver.com:8443`; área de clientes en `secure.anw.es/extranet` | Credenciales las tiene la protectora |
 | AWS | Cuenta `632115809125`, root `bienestar@modepran.net` | Acceso diario por SSO; ver [aws-account.md](aws-account.md) |
-| GitHub (código de la app) | Repo privado `thoriphes/modepran-gestion` (de Acción) | Se transfiere a una cuenta de la protectora en el traspaso |
+| GitHub (código de la app) | Repo público `thoriphes/modepran-gestion` (de Acción; cualquiera puede leerlo) | Se transfiere a una cuenta de la protectora en el traspaso |
 
 ### DNS de `protectoramodepran.com` (en Squarespace)
 

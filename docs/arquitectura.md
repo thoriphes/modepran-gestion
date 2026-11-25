@@ -26,7 +26,7 @@ Escala real: ~5-10 usuarios internos, ~7.300 animales, ~36.000 eventos de histor
 | Excel | Lambda con una librería xlsx | Informe de gestión y censo |
 | Correo | **SES**, remitente `@modepran.net` | Verificar el dominio con DKIM en el DNS de `modepran.net` (Squarespace) |
 | Infra como código | **AWS CDK (TypeScript)** en el repo | Que cualquier Claude pueda redesplegar todo desde cero |
-| Repo y CI/CD | Repo privado **`thoriphes/modepran-gestion`** (se transfiere a la protectora en el handoff). **GitHub Actions + OIDC** (rol IAM sin claves) | Sin access keys guardadas en ningún sitio |
+| Repo y CI/CD | Repo **público** **`thoriphes/modepran-gestion`** (se transfiere a la protectora en el handoff). **GitHub Actions + OIDC** (rol IAM sin claves) | Sin access keys guardadas en ningún sitio |
 | Backups | **DynamoDB PITR** (35 días) + **S3 versioning** + export semanal a S3 | PITR cuesta céntimos a este tamaño |
 | Observabilidad | CloudWatch Logs con retención 30 días + alarma de errores a email | |
 | Coste | AWS Budgets (alerta 10 €/mes) + Cost Anomaly Detection | |
