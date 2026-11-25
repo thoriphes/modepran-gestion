@@ -375,16 +375,29 @@ export function removeEvent(
 }
 
 /** Estado = resultado del último evento no veterinario (con estado resultante). */
+/**
+ * Último evento por ORDEN DE REGISTRO (`createdAt`, id), no por fecha. Así calculaba la app vieja el estado
+ * y el centro actuales (MAX id): con datos migrados, ordenar por fecha cambia el estado de ~309 animales.
+ */
+function lastRegistered(events: readonly HistoryEvent[], pred: (e: HistoryEvent) => boolean): HistoryEvent | undefined {
+  let best: HistoryEvent | undefined;
+  for (const e of events) {
+    if (!pred(e)) continue;
+    if (!best || e.createdAt > best.createdAt || (e.createdAt === best.createdAt && e.id > best.id)) best = e;
+  }
+  return best;
+}
+
 export function currentStatusFromEvents(events: readonly HistoryEvent[], catalogs: DomainCatalogs): CatalogId | undefined {
   const idx = catalogIndex(catalogs);
-  const last = lastOf(events, (e) => e.typeId !== 'veterinario' && !!idx.subtype(e.subtypeId)?.resultStatusId);
+  const last = lastRegistered(events, (e) => e.typeId !== 'veterinario' && !!idx.subtype(e.subtypeId)?.resultStatusId);
   return last ? idx.subtype(last.subtypeId)?.resultStatusId : undefined;
 }
 
 /** Centro = del último evento de llegada o con flag `center` que tenga centro. */
 export function currentCenterFromEvents(events: readonly HistoryEvent[], catalogs: DomainCatalogs): CatalogId | undefined {
   const idx = catalogIndex(catalogs);
-  const last = lastOf(events, (e) => !!e.centerId && (e.typeId === 'llegada' || !!idx.subtype(e.subtypeId)?.center));
+  const last = lastRegistered(events, (e) => !!e.centerId && (e.typeId === 'llegada' || !!idx.subtype(e.subtypeId)?.center));
   return last?.centerId;
 }
 

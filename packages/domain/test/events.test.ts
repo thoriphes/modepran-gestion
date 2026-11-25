@@ -337,6 +337,18 @@ describe('derivados y orden', () => {
     expect(sorted.map((e) => e.id)).toEqual([2, 4, 1, 3]);
   });
 
+  it('estado actual por orden de registro, no por fecha (como la app vieja)', () => {
+    const mk = (id: number, date: string, createdAt: string, subtypeId: string, typeId: string, centerId?: string) =>
+      ({ id, animalId: 1, date, createdAt, subtypeId, typeId, centerId }) as unknown as HistoryEvent;
+    // Adopción registrada después pero con fecha anterior a una devolución registrada antes.
+    const events = [
+      mk(1, '2026-01-01', '2026-01-01T10:00:00Z', 'aviso', 'llegada', 'valencia'),
+      mk(2, '2026-03-01', '2026-02-01T10:00:00Z', 'acogida', 'movimientos'),
+      mk(3, '2026-02-15', '2026-03-01T10:00:00Z', 'adopcion', 'salida', 'valencia'),
+    ];
+    expect(currentStatusFromEvents(events, CATALOGS)).toBe('adoptado');
+  });
+
   it('estado y centro desde eventos', () => {
     const { events } = buildAnimal(1, [
       { input: { subtypeId: 'ingreso_revision', userId: 'w', centerId: 'carlet', date: '2026-02-02' } },
