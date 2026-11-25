@@ -21,6 +21,7 @@ import { options, useAsync, useSession } from '../../context';
 import { RequirePerm } from '../../Layout';
 import { Badge, Button, Card, DL, Empty, ErrorBox, Loading, Modal, PageHeader, Segmented, Select } from '../../ui';
 import { StatusBadge } from './AnimalList';
+import { useAnimalPhoto } from '../../components/AnimalPicker';
 
 export default function AnimalDetail() {
   return (
@@ -40,6 +41,7 @@ function Inner() {
   const [photoOpen, setPhotoOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [actionError, setActionError] = useState<unknown>();
+  const photoSrc = useAnimalPhoto(res.data?.animal.id, res.data?.animal.hasPhoto, 'photo', res.data?.photoUrl, res.data?.animal.updatedAt);
 
   if (!Number.isFinite(id)) return <ErrorBox error={new Error('Nº de ficha no válido.')} />;
   if (res.loading && !res.data) return <Loading />;
@@ -85,8 +87,8 @@ function Inner() {
 
       <div className="grid gap-4 lg:grid-cols-[18rem_1fr]">
         <Card bodyClassName="p-3">
-          {d.photoUrl || d.thumbUrl ? (
-            <img src={d.photoUrl ?? d.thumbUrl} alt={`Foto de ${a.name}`} className="aspect-square w-full rounded-lg object-cover" />
+          {photoSrc ? (
+            <img src={photoSrc} alt={`Foto de ${a.name}`} className="aspect-square w-full rounded-lg object-cover" />
           ) : (
             <div className="grid aspect-square w-full place-items-center rounded-lg bg-stone-100 text-5xl text-stone-300 dark:bg-stone-800" aria-hidden="true">
               🐾
@@ -246,7 +248,7 @@ function History({ detail, onAdd, onChanged }: { detail: Detail; onAdd: (() => v
                     </Button>
                   )}
                   {st?.docGenerate && (s.can('documents:generate') || (s.can('documents:vet') && e.typeId === 'veterinario')) && (
-                    <Button size="sm" onClick={() => nav(`/documentos/evento/${e.id}`)}>
+                    <Button size="sm" onClick={() => nav(`/documentos/evento/${e.id}?animal=${detail.animal.id}`)}>
                       📄 Documento
                     </Button>
                   )}
@@ -318,6 +320,7 @@ function EditModal({ detail, onClose, onSaved }: { detail: Detail; onClose: () =
 }
 
 function PhotoModal({ detail, onClose, onSaved }: { detail: Detail; onClose: () => void; onSaved: () => void }) {
+  const thumb = useAnimalPhoto(detail.animal.id, detail.animal.hasPhoto, 'thumb', detail.thumbUrl);
   const s = useSession();
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
@@ -347,7 +350,7 @@ function PhotoModal({ detail, onClose, onSaved }: { detail: Detail; onClose: () 
         </>
       }
     >
-      <PhotoInput file={file} onFile={setFile} currentUrl={detail.thumbUrl} />
+      <PhotoInput file={file} onFile={setFile} currentUrl={thumb} />
       {error !== undefined && (
         <div className="mt-3">
           <ErrorBox error={error} />

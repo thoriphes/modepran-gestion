@@ -1,7 +1,7 @@
 /** Ficha de contacto: datos, eventos/animales en los que aparece, editar y borrar (solo sin eventos). */
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { contactFullName, EVENT_TYPE_NAMES, isSinDatos, normalizeContactData, type Contact, type ContactData } from '@modepran/domain';
+import { contactFullName, isSinDatos, normalizeContactData, type Contact, type ContactData } from '@modepran/domain';
 import { errorMessage } from '../../../lib/api';
 import { fmtDate } from '../../../lib/format';
 import { options, useAction, useAsync, useSession } from '../../context';
@@ -33,9 +33,9 @@ function Inner() {
   if (d.loading) return <Loading />;
   if (d.error) return <ErrorBox error={d.error} onRetry={d.reload} />;
   if (!d.data) return null;
-  const { contact: c, events } = d.data;
+  const { contact: c, animals = [] } = d.data;
   const canWrite = s.can('contacts:write');
-  const canDelete = canWrite && events.length === 0 && !isSinDatos(c);
+  const canDelete = canWrite && animals.length === 0 && !isSinDatos(c);
 
   return (
     <div className="space-y-4">
@@ -59,7 +59,7 @@ function Inner() {
                 variant="danger"
                 disabled={!canDelete}
                 loading={del.busy}
-                title={canDelete ? 'Borrar contacto' : 'Solo se pueden borrar contactos sin eventos'}
+                title={canDelete ? 'Borrar contacto' : 'Solo se pueden borrar contactos que no salen en ningún historial'}
                 onClick={() => {
                   if (window.confirm(`¿Borrar el contacto ${contactFullName(c)}? No se puede deshacer.`)) void del.run();
                 }}
@@ -87,38 +87,31 @@ function Inner() {
           ]}
         />
       </Card>
-      <Card title={`Historial (${events.length})`} bodyClassName="p-0">
-        {!events.length ? (
-          <Empty title="No aparece en ningún evento" />
+      <Card title={`Animales (${animals.length})`} bodyClassName="p-0">
+        {!animals.length ? (
+          <Empty title="No aparece en el historial de ningún animal" />
         ) : (
           <div className="overflow-x-auto">
             <table className="table-dense">
               <thead>
                 <tr>
-                  <th>Fecha</th>
+                  <th>Nº</th>
                   <th>Animal</th>
-                  <th>Tipo</th>
-                  <th>Subtipo</th>
-                  <th className="hidden md:table-cell">Notas</th>
+                  <th>Estado</th>
                 </tr>
               </thead>
               <tbody>
-                {events
-                  .slice()
-                  .sort((a, b) => b.date.localeCompare(a.date))
-                  .map((e) => (
-                    <tr key={e.id}>
-                      <td className="whitespace-nowrap">{fmtDate(e.date)}</td>
-                      <td>
-                        <Link to={`/animales/${e.animalId}`} className="text-accent-700 hover:underline dark:text-accent-300">
-                          {e.animalName ?? `nº ${e.animalId}`}
-                        </Link>
-                      </td>
-                      <td>{EVENT_TYPE_NAMES[e.typeId] ?? e.typeId}</td>
-                      <td>{s.name('subtypes', e.subtypeId)}</td>
-                      <td className="hidden max-w-80 truncate md:table-cell">{e.notes ?? ''}</td>
-                    </tr>
-                  ))}
+                {animals.map((a) => (
+                  <tr key={a.id}>
+                    <td className="tabular-nums">{a.id}</td>
+                    <td>
+                      <Link to={`/animales/${a.id}`} className="text-accent-700 hover:underline dark:text-accent-300">
+                        {a.name}
+                      </Link>
+                    </td>
+                    <td>{s.name('statuses', a.statusId)}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

@@ -1,9 +1,10 @@
 /** Editor de plantillas (admin): HTML relleno/en blanco, textos legales, vista previa, guardar y restaurar. */
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { BLOCKS, LANG_KEYS, PLACEHOLDERS, renderTemplate, TEMPLATE_SLUGS, unknownPlaceholders, type Template, type TemplateSlug } from '@modepran/domain';
+import { BLOCKS, LANG_KEYS, PLACEHOLDERS, renderTemplate, TEMPLATE_SLUGS, unknownPlaceholders, type TemplateSlug } from '@modepran/domain';
 import { fmtDateTime } from '../../../lib/format';
 import { blankData, sampleData, TEMPLATE_NAMES, templateDict, withDefaults } from '../../components/animals/docs';
+import type { TemplateFull } from '../../../lib/api';
 import { useAsync, useSession } from '../../context';
 import { RequirePerm } from '../../Layout';
 import { Button, Card, ErrorBox, Loading, Notice, PageHeader, Tabs, TextInput } from '../../ui';
@@ -24,7 +25,7 @@ function Inner() {
   const nav = useNavigate();
   const valid = (TEMPLATE_SLUGS as readonly string[]).includes(slug ?? '');
   const res = useAsync(() => (valid ? s.api.documents.template(slug as TemplateSlug) : Promise.reject(new Error('Plantilla desconocida.'))), [slug]);
-  const [draft, setDraft] = useState<Template>();
+  const [draft, setDraft] = useState<TemplateFull>();
   const [tab, setTab] = useState<Tab>('filled');
   const [preview, setPreview] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -64,8 +65,8 @@ function Inner() {
     setError(undefined);
     try {
       const t = await s.api.documents.saveTemplate(draft.slug, { name: draft.name, bodyFilled: draft.bodyFilled, bodyBlank: draft.bodyBlank, legalTexts: draft.legalTexts });
-      res.setData(t);
-      setSaved('Plantilla guardada.');
+      res.setData(t.template);
+      setSaved(t.warnings?.length ? `Plantilla guardada. Avisos: ${t.warnings.join(', ')}` : 'Plantilla guardada.');
     } catch (e) {
       setError(e);
     } finally {
@@ -89,8 +90,8 @@ function Inner() {
 
   const previewHtml =
     tab === 'blank'
-      ? renderTemplate(draft.bodyBlank, withDefaults(blankData()), templateDict(draft))
-      : renderTemplate(draft.bodyFilled, withDefaults(sampleData()), templateDict(draft));
+      ? renderTemplate(draft.bodyBlank, withDefaults(blankData()), templateDict({ legalTexts: { ...(draft.defaults?.legalTexts ?? {}), ...draft.legalTexts } }))
+      : renderTemplate(draft.bodyFilled, withDefaults(sampleData()), templateDict({ legalTexts: { ...(draft.defaults?.legalTexts ?? {}), ...draft.legalTexts } }));
 
   return (
     <div>

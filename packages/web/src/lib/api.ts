@@ -43,7 +43,6 @@ import type {
   Status,
   Subtype,
   Template,
-  TemplateData,
   TemplateSlug,
   User,
   Vaccine,
@@ -149,12 +148,26 @@ export interface AnimalData {
 export type ContactChoice = { mode: 'existing'; contactId: number } | { mode: 'new'; data: ContactData } | { mode: 'none' } | { mode: 'sin_datos' };
 
 export type EventInput = Omit<NewEventInput, 'contactId' | 'document'> & {
+  /** En la web se elige con `ContactChoice`; `toApiEventInput` lo convierte al formato de la API. */
   contact?: ContactChoice;
   /** Ciudad por nombre (se crea al vuelo). */
   cityName?: string;
   /** Adjunto ya subido con `eventUploadUrl`. */
   document?: { key: string; originalName: string };
 };
+
+/** Nombre del contacto especial para avisantes desconocidos (regla 6). */
+const SIN_DATOS = 'SIN DATOS';
+
+/** `EventInput` de la web → cuerpo de la API (`contact: {contactId?, data?}`). */
+export function toApiEventInput(input: EventInput): Record<string, unknown> {
+  const { contact, ...rest } = input;
+  const out: Record<string, unknown> = { ...rest };
+  if (contact?.mode === 'existing') out.contact = { contactId: contact.contactId };
+  else if (contact?.mode === 'new') out.contact = { data: contact.data };
+  else if (contact?.mode === 'sin_datos') out.contact = { data: { name: SIN_DATOS } };
+  return out;
+}
 
 export interface CreateAnimalBody {
   animal: AnimalData;
@@ -170,21 +183,33 @@ export interface UploadTarget {
 
 export interface ContactDetail {
   contact: Contact;
-  /** Eventos en los que aparece, con nombre del animal. */
-  events: (HistoryEvent & { animalName?: string })[];
+  /** Animales en cuyo historial aparece. */
+  animals: { id: number; name: string; statusId?: string }[];
 }
 
-export interface DocumentPayload {
-  template: Template;
-  data: TemplateData;
-  /** Textos legales por defecto (claves en minúsculas sin `LANG_`). */
-  dict: Record<string, string>;
+/** Documento ya rellenado en el servidor (`renderTemplate` del dominio). */
+export interface RenderedDocument {
+  slug: TemplateSlug;
+  title: string;
+  html: string;
+  /** Solo fichas masivas. */
+  count?: number;
 }
 
-export interface FichasPayload {
-  template: Template;
-  items: TemplateData[];
-  dict: Record<string, string>;
+export interface TemplateSummary {
+  slug: TemplateSlug;
+  name: string;
+  customized: boolean;
+  updatedAt?: string;
+}
+
+export interface TemplateFull extends Pick<Template, 'slug' | 'name' | 'bodyFilled' | 'bodyBlank' | 'legalTexts'> {
+  defaults: Pick<Template, 'bodyFilled' | 'bodyBlank' | 'legalTexts'>;
+  customized: boolean;
+  placeholders?: string[];
+  blocks?: string[];
+  langKeys?: string[];
+  updatedAt?: string;
 }
 
 export interface ReportQuery {
@@ -208,6 +233,8 @@ export interface ReportSummary {
 export interface ExcelData {
   gestion: GestionExcelData;
   census: CensusExcelData;
+  gestionTitle?: string;
+  censusTitle?: string;
 }
 
 export interface NewAgendaBody {
@@ -238,7 +265,9 @@ export interface NewIncidentBody {
 export interface PublicAnimal {
   id: number;
   name: string;
+  /** Nombre de la especie (la API lo manda como `speciesName`). */
   species: string;
+  speciesId?: string;
   speciesCode?: string;
   gender: Gender;
   /** Texto ("2 años", "5 meses"). */
@@ -358,6 +387,27 @@ export function createApi(opts: ApiClientOptions) {
   const put = <T>(p: string, b: unknown) => request<T>('PUT', p, b);
   const del = <T = void>(p: string) => request<T>('DELETE', p);
 
+  /** URLs firmadas GET (5 min) de fotos: caché de 4 min para no pedirlas en cada render. */
+  const urlCache = new Map<string, { url: string; until: number }>();
+  async function fileUrl(id: number, key: string): Promise<string> {
+    const hit = urlCache.get(key);
+    if (hit && hit.until > Date.now()) return hit.url;
+    const { url } = await get<{ url: string }>(`/animals/${id}/file-url`, { key });
+    urlCache.set(key, { url, until: Date.now() + 4 * 60_000 });
+    return url;
+  }
+  const invalidatePhoto = (id: number) => {
+    urlCache.delete(`animals/${id}/photo.jpg`);
+    urlCache.delete(`animals/${id}/thumb.jpg`);
+  };
+
+  /** Lista de agenda (`{items, overdue?}` en la API). */
+  const agendaList = (agenda: AgendaName, from: IsoDate, to: IsoDate, overdue = false) =>
+    get<{ items: AgendaItem[]; overdue?: AgendaItem[] }>('/agenda', { agenda, from, to, ...(overdue ? { overdue: 1 } : {}) });
+
+  const listIncidents = (q: { status?: IncidentStatus; mine?: boolean }) =>
+    get<Incident[]>('/incidents', { status: q.status, mine: q.mine ? 1 : undefined });
+
   return {
     me: () => get<Me>('/me'),
 
@@ -371,18 +421,26 @@ export function createApi(opts: ApiClientOptions) {
       list: (filters: AnimalFilters, page = 1, pageSize = 50, sort?: AnimalSort) =>
         get<Page<AnimalListItem>>('/animals', animalFiltersQuery(filters, page, pageSize, sort)),
       get: (id: number) => get<AnimalDetail>(`/animals/${id}`),
-      create: (body: CreateAnimalBody) => post<{ animal: Animal; event: HistoryEvent }>('/animals', body),
+      create: (body: CreateAnimalBody) =>
+        post<{ animal: Animal; event: HistoryEvent }>('/animals', { animal: body.animal, arrival: toApiEventInput(body.arrival) }),
       update: (id: number, body: Partial<AnimalData>) => patch<Animal>(`/animals/${id}`, body),
       remove: (id: number) => del(`/animals/${id}`),
       allowedTypes: (id: number) => get<AllowedTypes>(`/animals/${id}/allowed-types`),
-      addEvent: (id: number, body: EventInput) => post<{ animal: Animal; event: HistoryEvent }>(`/animals/${id}/events`, body),
-      deleteEvent: (id: number, eventId: number) => del(`/animals/${id}/events/${eventId}`),
+      addEvent: (id: number, body: EventInput) => post<{ animal: Animal; event: HistoryEvent }>(`/animals/${id}/events`, toApiEventInput(body)),
+      deleteEvent: (id: number, eventId: number) => del<{ animal: Animal }>(`/animals/${id}/events/${eventId}`),
       photoUploadUrl: (id: number) => post<{ photo: UploadTarget; thumb: UploadTarget }>(`/animals/${id}/photo-upload-url`, { contentType: 'image/jpeg' }),
       /** Confirma la foto subida (marca `hasPhoto`; publica la copia si es visible en web). */
-      photoUploaded: (id: number) => post<Animal>(`/animals/${id}/photo-uploaded`, {}),
+      photoUploaded: (id: number) => {
+        invalidatePhoto(id);
+        return post<Animal>(`/animals/${id}/photo-uploaded`, {});
+      },
       eventUploadUrl: (id: number, fileName: string, contentType: string) =>
         post<UploadTarget>(`/animals/${id}/event-upload-url`, { fileName, contentType }),
-      fileUrl: (id: number, key: string) => get<{ url: string }>(`/animals/${id}/files/${encodeURIComponent(key)}-url`),
+      fileUrl: async (id: number, key: string) => ({ url: await fileUrl(id, key) }),
+      /** Foto (700 px) firmada; la API no la incluye en la ficha. */
+      photoUrl: (id: number) => fileUrl(id, `animals/${id}/photo.jpg`),
+      /** Miniatura (200 px) firmada; la API no la incluye en el listado. */
+      thumbUrl: (id: number) => fileUrl(id, `animals/${id}/thumb.jpg`),
     },
 
     contacts: {
@@ -393,38 +451,75 @@ export function createApi(opts: ApiClientOptions) {
     },
 
     documents: {
-      templates: () => get<Template[]>('/templates'),
-      template: (slug: TemplateSlug) => get<Template>(`/templates/${slug}`),
+      templates: () => get<TemplateSummary[]>('/templates'),
+      template: (slug: TemplateSlug) => get<TemplateFull>(`/templates/${slug}`),
       saveTemplate: (slug: TemplateSlug, body: Pick<Template, 'bodyFilled' | 'bodyBlank' | 'legalTexts'> & { name?: string }) =>
-        put<Template>(`/templates/${slug}`, body),
-      resetTemplate: (slug: TemplateSlug) => post<Template>(`/templates/${slug}/reset`),
-      event: (eventId: number) => get<DocumentPayload>(`/documents/event/${eventId}`),
-      fichas: (filters: AnimalFilters) => get<FichasPayload>('/documents/fichas', filters as Query),
-      animal: (animalId: number) => get<DocumentPayload>(`/documents/animal/${animalId}`),
+        put<{ template: TemplateFull; warnings: string[] }>(`/templates/${slug}`, body),
+      resetTemplate: (slug: TemplateSlug) => post<TemplateFull>(`/templates/${slug}/reset`),
+      event: (eventId: number, opts: { animalId?: number; blank?: boolean } = {}) =>
+        get<RenderedDocument>(`/documents/event/${eventId}`, { animalId: opts.animalId, blank: opts.blank ? 1 : undefined }),
+      blank: (slug: TemplateSlug) => get<RenderedDocument>(`/documents/blank/${slug}`),
+      ficha: (animalId: number) => get<RenderedDocument>(`/documents/ficha/${animalId}`),
+      fichas: (filters: AnimalFilters) => get<RenderedDocument>('/documents/fichas', filters as Query),
     },
 
     reports: {
       dashboard: () => get<Dashboard>('/reports/dashboard'),
-      summary: (q: ReportQuery) => get<ReportSummary>('/reports/summary', q as unknown as Query),
+      summary: async (q: ReportQuery): Promise<ReportSummary> => {
+        const r = await get<{
+          monthlyCensus: MonthlyCensusReport;
+          arrivalsBySpeciesSex: BySpeciesSexReport;
+          exitsBySpeciesSex: BySpeciesSexReport;
+          arrivalsBySubtype: BySubtypeReport;
+          exitsBySubtype: BySubtypeReport;
+        }>('/reports/summary', q as unknown as Query);
+        return {
+          census: r.monthlyCensus,
+          arrivals: r.arrivalsBySpeciesSex,
+          exits: r.exitsBySpeciesSex,
+          arrivalsBySubtype: r.arrivalsBySubtype,
+          exitsBySubtype: r.exitsBySubtype,
+        };
+      },
       excelData: (q: ReportQuery) => get<ExcelData>('/reports/excel-data', q as unknown as Query),
     },
 
     agenda: {
-      list: (agenda: AgendaName, from: IsoDate, to: IsoDate) => get<AgendaItem[]>('/agenda', { agenda, from, to }),
-      /** Pendientes de días anteriores. */
-      overdue: (agenda: AgendaName, before: IsoDate) => get<AgendaItem[]>('/agenda', { agenda, overdueBefore: before }),
+      list: async (agenda: AgendaName, from: IsoDate, to: IsoDate) => (await agendaList(agenda, from, to)).items,
+      /** Pendientes de días anteriores a `today`. */
+      overdue: async (agenda: AgendaName, today: IsoDate) => (await agendaList(agenda, today, today, true)).overdue ?? [],
       get: (id: string) => get<AgendaItem>(`/agenda/${encodeURIComponent(id)}`),
       create: (body: NewAgendaBody) => post<AgendaItem>('/agenda', body),
       update: (id: string, body: { status?: AgendaStatus; text?: string; actions?: AppointmentAction[]; owner?: NewAgendaBody['owner'] }) =>
         patch<AgendaItem>(`/agenda/${encodeURIComponent(id)}`, body),
-      reschedule: (id: string, body: { date: IsoDate; time?: string }) => post<{ original: AgendaItem; created: AgendaItem }>(`/agenda/${encodeURIComponent(id)}/reschedule`, body),
-      registerHistory: (id: string, body: { subtypeIds?: string[]; notes?: string }) =>
-        post<{ events: HistoryEvent[] }>(`/agenda/${encodeURIComponent(id)}/register-history`, body),
+      reschedule: (id: string, body: { date: IsoDate; time?: string }) =>
+        post<{ original: AgendaItem; created: AgendaItem }>(`/agenda/${encodeURIComponent(id)}/reschedule`, body),
+      /** `actionIndexes`: posiciones en `item.actions` (por defecto, todas). */
+      registerHistory: (id: string, body: { actionIndexes?: number[] }) =>
+        post<{ events: HistoryEvent[]; skipped: { index: number; reason: string }[] }>(`/agenda/${encodeURIComponent(id)}/register-history`, body),
     },
 
     incidents: {
-      list: (q: { status?: IncidentStatus; mine?: boolean; referred?: boolean }) => get<Incident[]>('/incidents', q),
-      get: (id: string) => get<{ incident: Incident; agenda: AgendaItem[]; photoUrls: string[] }>(`/incidents/${encodeURIComponent(id)}`),
+      list: listIncidents,
+      /**
+       * Incidencias con derivación a Modevet. La API no tiene filtro propio: se sacan las derivaciones de la
+       * agenda de Modevet (60 días atrás + 30 adelante + pendientes atrasadas) y se cruzan con las incidencias.
+       */
+      referred: async (today: IsoDate) => {
+        const shift = (d: IsoDate, n: number) => {
+          const [y, m, day] = d.split('-').map(Number) as [number, number, number];
+          return new Date(Date.UTC(y, m - 1, day + n)).toISOString().slice(0, 10);
+        };
+        const [r, all] = await Promise.all([agendaList('modevet', shift(today, -60), shift(today, 30), true), listIncidents({})]);
+        const ids = new Set([...r.items, ...(r.overdue ?? [])].filter((i) => i.isReferral && i.incidentId).map((i) => i.incidentId!));
+        return all.filter((i) => ids.has(i.id));
+      },
+      get: async (id: string) => {
+        const r = await get<{ incident: Incident; agenda: AgendaItem[]; photoUrls: ({ key: string; url: string } | string)[] }>(
+          `/incidents/${encodeURIComponent(id)}`,
+        );
+        return { ...r, photoUrls: (r.photoUrls ?? []).map((p) => (typeof p === 'string' ? p : p.url)) };
+      },
       create: (body: NewIncidentBody) => post<Incident>('/incidents', body),
       photoUploadUrl: (id: string, contentType: string, bytes: number) =>
         post<UploadTarget>(`/incidents/${encodeURIComponent(id)}/photo-upload-url`, { contentType, bytes }),
@@ -435,23 +530,34 @@ export function createApi(opts: ApiClientOptions) {
         post<{ incident: Incident; appointment: AgendaItem }>(`/incidents/${encodeURIComponent(id)}/appointment`, body),
       referral: (id: string, body: { date: IsoDate; time?: string; appointmentTypeId: string; notes?: string }) =>
         post<{ incident: Incident; referral: AgendaItem }>(`/incidents/${encodeURIComponent(id)}/referral`, body),
-      resolve: (id: string, body: { byStaffId: string; treatment: string; registerHistory?: boolean }) =>
-        post<{ incident: Incident }>(`/incidents/${encodeURIComponent(id)}/resolve`, body),
+      resolve: (id: string, body: { byStaffId: string; treatment: string; registerHistory?: boolean; subtypeId?: string }) =>
+        post<{ incident: Incident; updatedItems?: AgendaItem[]; event?: HistoryEvent }>(`/incidents/${encodeURIComponent(id)}/resolve`, body),
     },
 
     admin: {
       users: () => get<User[]>('/users'),
       createUser: (body: { email: string; name: string; profiles: Profile[]; staffId?: string }) => post<User>('/users', body),
-      updateUser: (id: string, body: Partial<Pick<User, 'name' | 'profiles' | 'active' | 'staffId'>>) => patch<User>(`/users/${encodeURIComponent(id)}`, body),
-      audit: (q: AuditQuery) => get<{ items: AuditEntry[]; next?: string }>('/audit', q as Query),
+      updateUser: (id: string, body: Partial<Pick<User, 'name' | 'profiles' | 'active' | 'staffId'>>) =>
+        patch<User>(`/users/${encodeURIComponent(id)}`, body),
+      /** La API devuelve un array (máx. 1000, recientes primero); se envuelve por si algún día pagina. */
+      audit: async (q: AuditQuery): Promise<{ items: AuditEntry[]; next?: string }> => {
+        const r = await get<AuditEntry[] | { items: AuditEntry[]; next?: string }>('/audit', q as Query);
+        return Array.isArray(r) ? { items: r } : r;
+      },
       exportCsv: (what: string) => text(`/export/${what}.csv`),
     },
 
     public: {
-      animals: () => get<PublicAnimal[]>('/public/animals'),
-      animal: (id: number) => get<PublicAnimal & { description?: string }>(`/public/animals/${id}`),
+      animals: async () => (await get<RawPublicAnimal[]>('/public/animals')).map(fromRawPublic),
+      animal: async (id: number) => fromRawPublic(await get<RawPublicAnimal>(`/public/animals/${id}`)),
     },
   };
+}
+
+type RawPublicAnimal = Omit<PublicAnimal, 'species'> & { species?: string; speciesName?: string; description?: string };
+function fromRawPublic(r: RawPublicAnimal): PublicAnimal & { description?: string } {
+  const { speciesName, ...rest } = r;
+  return { ...rest, species: r.species ?? speciesName ?? '' };
 }
 
 export type Api = ReturnType<typeof createApi>;

@@ -103,7 +103,7 @@ export function AnimalPicker({
                   setOpen(false);
                 }}
               >
-                <Thumb url={a.thumbUrl} />
+                <Thumb url={a.thumbUrl} animalId={a.id} hasPhoto={a.hasPhoto} />
                 <span className="min-w-0">
                   <span className="block truncate font-medium">{a.name}</span>
                   <span className="block truncate text-xs text-stone-500">
@@ -120,9 +120,45 @@ export function AnimalPicker({
   );
 }
 
-export function Thumb({ url, size = 'size-10', alt = '' }: { url?: string | undefined; size?: string; alt?: string }) {
-  return url ? (
-    <img src={url} alt={alt} loading="lazy" className={cx(size, 'shrink-0 rounded-md bg-stone-100 object-cover dark:bg-stone-800')} />
+/**
+ * URL firmada de la foto o miniatura de un animal. La API no la incluye en listados ni fichas: se pide a
+ * `GET /animals/:id/file-url` (con caché en el cliente). `known` = URL ya conocida (si la API la manda).
+ */
+export function useAnimalPhoto(animalId: number | undefined, hasPhoto: boolean | undefined, kind: 'thumb' | 'photo', known?: string, version?: unknown) {
+  const { api } = useSession();
+  const [url, setUrl] = useState<string | undefined>(known);
+  useEffect(() => {
+    if (known) return setUrl(known);
+    setUrl(undefined);
+    if (animalId === undefined || !hasPhoto) return;
+    let alive = true;
+    (kind === 'thumb' ? api.animals.thumbUrl(animalId) : api.animals.photoUrl(animalId)).then(
+      (u) => alive && setUrl(u),
+      () => alive && setUrl(undefined),
+    );
+    return () => {
+      alive = false;
+    };
+  }, [api, animalId, hasPhoto, kind, known, version]);
+  return url;
+}
+
+export function Thumb({
+  url,
+  animalId,
+  hasPhoto,
+  size = 'size-10',
+  alt = '',
+}: {
+  url?: string | undefined;
+  animalId?: number;
+  hasPhoto?: boolean;
+  size?: string;
+  alt?: string;
+}) {
+  const src = useAnimalPhoto(animalId, hasPhoto, 'thumb', url);
+  return src ? (
+    <img src={src} alt={alt} loading="lazy" className={cx(size, 'shrink-0 rounded-md bg-stone-100 object-cover dark:bg-stone-800')} />
   ) : (
     <span aria-hidden="true" className={cx(size, 'grid shrink-0 place-items-center rounded-md bg-stone-100 text-stone-400 dark:bg-stone-800')}>
       🐾

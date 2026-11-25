@@ -1,6 +1,8 @@
-/** Fichas masivas: una ficha por página para los animales filtrados (filtros en la URL). */
+/**
+ * Fichas masivas de los animales filtrados (filtros en la URL). El servidor devuelve un único HTML con una
+ * ficha por página (máx. 300).
+ */
 import { useSearchParams } from 'react-router-dom';
-import { fillTemplate } from '../../components/animals/docs';
 import { filtersFromParams } from '../../components/animals/filters';
 import { PrintView } from '../../components/PrintView';
 import { useAsync, useSession } from '../../context';
@@ -21,7 +23,6 @@ function Inner() {
   const res = useAsync(() => s.api.documents.fichas(filtersFromParams(params)), [params.toString()]);
   if (res.loading) return <Loading label="Preparando las fichas (puede tardar)…" />;
   if (res.error) return <ErrorBox error={res.error} onRetry={res.reload} />;
-  if (!res.data || res.data.items.length === 0) return <Empty title="No hay animales con estos filtros" />;
-  const { template, items, dict } = res.data;
-  return <PrintView title={`Fichas masivas (${items.length})`} pages={items.map((d) => fillTemplate(template, d, dict))} />;
+  if (!res.data || res.data.count === 0) return <Empty title="No hay animales con estos filtros" />;
+  return <PrintView title={`${res.data.title}${res.data.count !== undefined ? ` (${res.data.count})` : ''}`} pages={[res.data.html]} />;
 }

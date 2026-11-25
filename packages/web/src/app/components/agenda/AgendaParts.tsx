@@ -512,22 +512,21 @@ function Row({ k, children }: { k: string; children: ReactNode }) {
 function RegisterHistory({ item }: { item: AgendaItemView }) {
   const { api, catalogs, name } = useSession();
   const candidates = useMemo(() => {
-    const out: { key: string; label: string; subtypeId: string }[] = [];
-    for (const a of item.actions ?? []) {
+    const out: { key: string; label: string; subtypeId: string; index: number }[] = [];
+    for (const [index, a] of (item.actions ?? []).entries()) {
       const c = catalogs.actionCategories.find((x) => x.id === a.categoryId);
       const sub = c?.subcategories.find((x) => x.id === a.subcategoryId);
       const subtypeId = sub?.vetSubtypeId ?? c?.vetSubtypeId;
-      if (subtypeId) out.push({ key: `${a.categoryId}-${a.subcategoryId ?? ''}`, label: actionText(a, catalogs.actionCategories), subtypeId });
+      if (subtypeId) out.push({ key: String(index), label: actionText(a, catalogs.actionCategories), subtypeId, index });
     }
     return out;
   }, [item, catalogs]);
   const [checked, setChecked] = useState<Set<string>>(() => new Set(candidates.map((c) => c.key)));
-  const [notes, setNotes] = useState(item.text ?? '');
   const [result, setResult] = useState<number>();
   const reg = useAction(async () => {
-    const subtypeIds = candidates.filter((c) => checked.has(c.key)).map((c) => c.subtypeId);
-    const r = await api.agenda.registerHistory(item.id, { subtypeIds, ...(notes.trim() ? { notes: notes.trim() } : {}) });
-    setResult(r.events?.length ?? subtypeIds.length);
+    const actionIndexes = candidates.filter((c) => checked.has(c.key)).map((c) => c.index);
+    const r = await api.agenda.registerHistory(item.id, { actionIndexes });
+    setResult(r.events?.length ?? actionIndexes.length);
   });
 
   return (
@@ -552,7 +551,7 @@ function RegisterHistory({ item }: { item: AgendaItemView }) {
               />
             ))}
           </div>
-          <TextArea label="Notas para el historial" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+          <p className="text-xs text-stone-500">Se crea un evento Veterinario por actuación marcada, con fecha de la cita. Solo se puede registrar una vez.</p>
           {reg.error !== undefined && <ErrorBox error={reg.error} />}
           {result !== undefined ? (
             <Notice tone="success">Registrado{result === 1 ? ' 1 evento' : ` ${result} eventos`} en el historial.</Notice>

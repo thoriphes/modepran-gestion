@@ -156,7 +156,7 @@ function AnimalListInner() {
                 {res.data.items.map((a) => (
                   <tr key={a.id} className="cursor-pointer" onClick={() => nav(`/animales/${a.id}`)}>
                     <td>
-                      <Thumb url={a.thumbUrl} size="size-9" />
+                      <Thumb url={a.thumbUrl} animalId={a.id} hasPhoto={a.hasPhoto} size="size-9" />
                     </td>
                     <td className="tabular-nums">{a.id}</td>
                     <td className="font-medium">
@@ -185,7 +185,7 @@ function AnimalListInner() {
             {res.data.items.map((a) => (
               <li key={a.id}>
                 <Link to={`/animales/${a.id}`} className="card flex items-center gap-3 p-3">
-                  <Thumb url={a.thumbUrl} size="size-14" />
+                  <Thumb url={a.thumbUrl} animalId={a.id} hasPhoto={a.hasPhoto} size="size-14" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">
                       {a.name} <span className="font-normal text-stone-500">· nº {a.id}</span>
