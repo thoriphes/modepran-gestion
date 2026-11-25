@@ -88,9 +88,9 @@ function Inner() {
       <div className="grid gap-4 lg:grid-cols-[18rem_1fr]">
         <Card bodyClassName="p-3">
           {photoSrc ? (
-            <img src={photoSrc} alt={`Foto de ${a.name}`} className="aspect-square w-full rounded-lg object-cover" />
+            <img src={photoSrc} alt={`Foto de ${a.name}`} className="mx-auto aspect-square w-full max-w-72 rounded-lg object-cover lg:max-w-none" />
           ) : (
-            <div className="grid aspect-square w-full place-items-center rounded-lg bg-stone-100 text-5xl text-stone-300 dark:bg-stone-800" aria-hidden="true">
+            <div className="mx-auto grid aspect-square w-full max-w-48 place-items-center rounded-lg bg-stone-100 text-5xl lg:max-w-none text-stone-300 dark:bg-stone-800" aria-hidden="true">
               🐾
             </div>
           )}
@@ -247,7 +247,7 @@ function History({ detail, onAdd, onChanged }: { detail: Detail; onAdd: (() => v
                       📎 Adjunto
                     </Button>
                   )}
-                  {st?.docGenerate && (s.can('documents:generate') || (s.can('documents:vet') && e.typeId === 'veterinario')) && (
+                  {(st?.docGenerate || e.typeId === 'veterinario') && (s.can('documents:generate') || (s.can('documents:vet') && e.typeId === 'veterinario')) && (
                     <Button size="sm" onClick={() => nav(`/documentos/evento/${e.id}?animal=${detail.animal.id}`)}>
                       📄 Documento
                     </Button>

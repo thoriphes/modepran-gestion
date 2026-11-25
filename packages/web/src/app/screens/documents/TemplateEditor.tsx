@@ -5,6 +5,7 @@ import { BLOCKS, LANG_KEYS, PLACEHOLDERS, renderTemplate, TEMPLATE_SLUGS, unknow
 import { fmtDateTime } from '../../../lib/format';
 import { blankData, sampleData, TEMPLATE_NAMES, templateDict, withDefaults } from '../../components/animals/docs';
 import type { TemplateFull } from '../../../lib/api';
+import { DocumentFrame } from '../../components/PrintView';
 import { useAsync, useSession } from '../../context';
 import { RequirePerm } from '../../Layout';
 import { Button, Card, ErrorBox, Loading, Notice, PageHeader, Tabs, TextInput } from '../../ui';
@@ -97,7 +98,7 @@ function Inner() {
     <div>
       <PageHeader
         title={`Plantilla: ${TEMPLATE_NAMES[draft.slug] ?? draft.name}`}
-        subtitle={draft.updatedAt ? `Última modificación: ${fmtDateTime(draft.updatedAt)}` : undefined}
+        subtitle={draft.customized && draft.updatedAt ? `Última modificación: ${fmtDateTime(draft.updatedAt)}` : "Versión por defecto (sin cambios)"}
         actions={
           <>
             <Button onClick={() => nav('/documentos')}>← Documentos</Button>
@@ -213,7 +214,11 @@ function Inner() {
         {preview && tab !== 'legal' && (
           <div className="overflow-auto rounded-xl bg-stone-200/60 p-2 dark:bg-stone-800">
             <p className="mb-2 text-xs text-stone-500">Vista previa con datos ficticios</p>
-            <div className="print-sheet print-doc origin-top-left scale-[0.8]" dangerouslySetInnerHTML={{ __html: previewHtml }} />
+            {/^\s*(<!doctype|<html)/i.test(previewHtml) ? (
+              <DocumentFrame html={previewHtml} title="Vista previa" />
+            ) : (
+              <div className="print-sheet print-doc origin-top-left scale-[0.8]" dangerouslySetInnerHTML={{ __html: previewHtml }} />
+            )}
           </div>
         )}
       </div>

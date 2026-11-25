@@ -110,7 +110,7 @@ function ModevetSection() {
 }
 
 function AgendaRow({ item }: { item: AgendaItem }) {
-  const who = item.externalAnimal?.name ?? (item.animalId ? `Ficha nº ${item.animalId}` : '');
+  const who = item.externalAnimal?.name ?? (item as { animalName?: string }).animalName ?? (item.animalId ? `Ficha nº ${item.animalId}` : '');
   return (
     <li className="flex items-start gap-3 px-4 py-2.5">
       <span className="w-12 shrink-0 pt-0.5 text-sm font-semibold tabular-nums">{item.time ?? 'S/H'}</span>

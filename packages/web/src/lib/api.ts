@@ -401,12 +401,32 @@ export function createApi(opts: ApiClientOptions) {
     urlCache.delete(`animals/${id}/thumb.jpg`);
   };
 
+  /**
+   * Nombres de animales para citas e incidencias (la API solo guarda `animalId`). Se piden las fichas una vez
+   * y se cachean en memoria; si falla (p. ej. sin permiso), se queda sin nombre.
+   */
+  const nameCache = new Map<number, Promise<string | undefined>>();
+  async function withAnimalNames<T extends { animalId?: number; animalName?: string }>(items: T[]): Promise<T[]> {
+    const ids = [...new Set(items.filter((i) => i.animalId !== undefined && !i.animalName).map((i) => i.animalId!))];
+    for (const id of ids)
+      if (!nameCache.has(id))
+        nameCache.set(
+          id,
+          get<AnimalDetail>(`/animals/${id}`).then(
+            (d) => d.animal.name,
+            () => undefined,
+          ),
+        );
+    const names = new Map(await Promise.all(ids.map(async (id) => [id, await nameCache.get(id)] as const)));
+    return items.map((i) => (i.animalId !== undefined && !i.animalName && names.get(i.animalId) ? { ...i, animalName: names.get(i.animalId) } : i));
+  }
+
   /** Lista de agenda (`{items, overdue?}` en la API). */
   const agendaList = (agenda: AgendaName, from: IsoDate, to: IsoDate, overdue = false) =>
     get<{ items: AgendaItem[]; overdue?: AgendaItem[] }>('/agenda', { agenda, from, to, ...(overdue ? { overdue: 1 } : {}) });
 
-  const listIncidents = (q: { status?: IncidentStatus; mine?: boolean }) =>
-    get<Incident[]>('/incidents', { status: q.status, mine: q.mine ? 1 : undefined });
+  const listIncidents = async (q: { status?: IncidentStatus; mine?: boolean }) =>
+    withAnimalNames(await get<Incident[]>('/incidents', { status: q.status, mine: q.mine ? 1 : undefined }));
 
   return {
     me: () => get<Me>('/me'),
@@ -485,9 +505,10 @@ export function createApi(opts: ApiClientOptions) {
     },
 
     agenda: {
-      list: async (agenda: AgendaName, from: IsoDate, to: IsoDate) => (await agendaList(agenda, from, to)).items,
+      list: async (agenda: AgendaName, from: IsoDate, to: IsoDate) => withAnimalNames((await agendaList(agenda, from, to)).items as (AgendaItem & { animalName?: string })[]),
       /** Pendientes de días anteriores a `today`. */
-      overdue: async (agenda: AgendaName, today: IsoDate) => (await agendaList(agenda, today, today, true)).overdue ?? [],
+      overdue: async (agenda: AgendaName, today: IsoDate) =>
+        withAnimalNames(((await agendaList(agenda, today, today, true)).overdue ?? []) as (AgendaItem & { animalName?: string })[]),
       get: (id: string) => get<AgendaItem>(`/agenda/${encodeURIComponent(id)}`),
       create: (body: NewAgendaBody) => post<AgendaItem>('/agenda', body),
       update: (id: string, body: { status?: AgendaStatus; text?: string; actions?: AppointmentAction[]; owner?: NewAgendaBody['owner'] }) =>
@@ -518,7 +539,9 @@ export function createApi(opts: ApiClientOptions) {
         const r = await get<{ incident: Incident; agenda: AgendaItem[]; photoUrls: ({ key: string; url: string } | string)[] }>(
           `/incidents/${encodeURIComponent(id)}`,
         );
-        return { ...r, photoUrls: (r.photoUrls ?? []).map((p) => (typeof p === 'string' ? p : p.url)) };
+        const [incident] = await withAnimalNames([r.incident]);
+        const agenda = await withAnimalNames(r.agenda as (AgendaItem & { animalName?: string })[]);
+        return { ...r, incident: incident!, agenda, photoUrls: (r.photoUrls ?? []).map((p) => (typeof p === 'string' ? p : p.url)) };
       },
       create: (body: NewIncidentBody) => post<Incident>('/incidents', body),
       photoUploadUrl: (id: string, contentType: string, bytes: number) =>

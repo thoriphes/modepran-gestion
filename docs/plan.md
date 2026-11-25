@@ -10,7 +10,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
 | P3 | API Hono: repositorio (memoria + DynamoDB), rutas de spec §9, auth por grupos, auditoría, seed sintético, tests | `packages/api` | P2 | ✅ (código; sin desplegar) |
 | P4 | Infra CDK: DynamoDB, S3, CloudFront, API GW, Lambda, Cognito, SES, alarmas, OIDC GitHub | `packages/infra` | P1 | ✅ (código; sin desplegar) |
 | P5 | Migración: parser del volcado MariaDB, mapeo a dominio, carga a DynamoDB/S3, dry-run y verificación | `packages/migrate` | P2, P3 (repo) | ✅ (`load` sin ejecutar contra AWS) |
-| P6 | Frontal: login, fichas, historial, contactos, documentos, informes/Excel, agenda, incidencias, admin, web pública | `packages/web` | P3 (contrato) | ⬜ |
+| P6 | Frontal: login, fichas, historial, contactos, documentos, informes/Excel, agenda, incidencias, admin, web pública | `packages/web` | P3 (contrato) | ✅ (probado en local contra la API de dev; ver packages/web/README.md) |
 | P7 | Despliegue en AWS (eu-north-1), migración de datos del backup del 19/11, usuarios iniciales | — | P3-P6 | ⬜ |
 | P8 | Verificación end-to-end, docs y HANDOFF actualizados | — | P7 | ⬜ |
 

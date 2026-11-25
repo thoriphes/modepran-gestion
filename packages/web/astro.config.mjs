@@ -15,6 +15,12 @@ function devConfigJson() {
     name: 'modepran-dev-config',
     apply: /** @type {'serve'} */ ('serve'),
     configureServer(/** @type {any} */ server) {
+      // Fallback de SPA como el de CloudFront (`WEB_REWRITE_CODE`): /app/<ruta sin extensión> → /app/.
+      server.middlewares.use((/** @type {any} */ req, /** @type {any} */ _res, /** @type {any} */ next) => {
+        const [path, query] = String(req.url ?? '').split('?');
+        if (path && /^\/app\/[^.]+$/.test(path) && !path.startsWith('/app/@')) req.url = '/app/' + (query ? `?${query}` : '');
+        next();
+      });
       server.middlewares.use('/config.json', (/** @type {any} */ _req, /** @type {any} */ res) => {
         const local = devDir + 'config.local.json';
         const file = existsSync(local) ? local : devDir + 'config.json';
@@ -34,6 +40,8 @@ export default defineConfig({
   build: { format: 'directory' },
   integrations: [react()],
   server: { port: 4321 },
+  // La barra de Astro tapa los botones fijos de abajo en móvil.
+  devToolbar: { enabled: false },
   vite: {
     plugins: [tailwindcss(), devConfigJson()],
     server: {

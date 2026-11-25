@@ -157,8 +157,9 @@ export function Thumb({
   alt?: string;
 }) {
   const src = useAnimalPhoto(animalId, hasPhoto, 'thumb', url);
-  return src ? (
-    <img src={src} alt={alt} loading="lazy" className={cx(size, 'shrink-0 rounded-md bg-stone-100 object-cover dark:bg-stone-800')} />
+  const [failed, setFailed] = useState<string>();
+  return src && failed !== src ? (
+    <img src={src} alt={alt} loading="lazy" onError={() => setFailed(src)} className={cx(size, 'shrink-0 rounded-md bg-stone-100 object-cover dark:bg-stone-800')} />
   ) : (
     <span aria-hidden="true" className={cx(size, 'grid shrink-0 place-items-center rounded-md bg-stone-100 text-stone-400 dark:bg-stone-800')}>
       🐾

@@ -1,5 +1,6 @@
 /** Utilidades de la web pública de adopciones (sin login; todo pasa por lib/api.ts). */
-import { formatAge, GENDER_LABELS, SIZE_LABELS, todayMadrid } from '@modepran/domain';
+import { useState } from 'react';
+import { ageParts, GENDER_LABELS, SIZE_LABELS, todayMadrid } from '@modepran/domain';
 import { createApi, type Api, type PublicAnimal } from '../lib/api';
 import { joinUrl, loadConfig } from '../lib/config';
 
@@ -20,10 +21,15 @@ export function photoSrc(url: string | undefined, publicFilesBaseUrl: string): s
   return joinUrl(publicFilesBaseUrl, url);
 }
 
+/** Edad corta y aproximada ("2 años", "5 meses", "cachorro"): en la web pública no hace falta precisión. */
 export function ageText(a: Pick<PublicAnimal, 'age' | 'bornAt'>): string | undefined {
-  if (a.age) return a.age;
-  if (a.bornAt) return formatAge(a.bornAt, todayMadrid());
-  return undefined;
+  if (a.bornAt) {
+    const { years, months } = ageParts(a.bornAt, todayMadrid());
+    if (years >= 1) return years === 1 ? '1 año' : `${years} años`;
+    if (months >= 1) return months === 1 ? '1 mes' : `${months} meses`;
+    return 'Menos de un mes';
+  }
+  return a.age;
 }
 
 export const genderText = (a: PublicAnimal) => (a.gender === 'none' ? undefined : GENDER_LABELS[a.gender]);
@@ -40,8 +46,9 @@ export function speciesEmoji(a: Pick<PublicAnimal, 'species' | 'speciesCode'>): 
 export const detailHref = (id: number) => `/adopta/animal/?id=${id}`;
 
 export function Photo({ a, src, className }: { a: PublicAnimal; src: string | undefined; className?: string }) {
-  return src ? (
-    <img src={src} alt={`Foto de ${a.name}`} loading="lazy" className={`${className ?? ''} object-cover`} />
+  const [failed, setFailed] = useState(false);
+  return src && !failed ? (
+    <img src={src} alt={`Foto de ${a.name}`} loading="lazy" onError={() => setFailed(true)} className={`${className ?? ''} object-cover`} />
   ) : (
     <div className={`${className ?? ''} grid place-items-center bg-gradient-to-br from-accent-100 to-amber-50 text-6xl dark:from-accent-950 dark:to-stone-900`} aria-hidden="true">
       {speciesEmoji(a)}

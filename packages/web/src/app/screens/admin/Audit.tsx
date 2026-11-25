@@ -16,7 +16,6 @@ const EXPORTS: { what: string; label: string }[] = [
   { what: 'events', label: 'Historial' },
   { what: 'agenda', label: 'Agenda' },
   { what: 'incidents', label: 'Incidencias' },
-  { what: 'audit', label: 'Auditoría' },
 ];
 
 export default function Audit() {
