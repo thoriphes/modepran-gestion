@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Protectora Modepran" description="Protectora Modepran: adopciones y gestión interna.">
+  <main class="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-4 py-12">
+    <div class="mb-8 flex items-center gap-3">
+      <img src="/favicon.svg" alt="" class="size-12" />
+      <div>
+        <h1 class="font-display text-3xl font-semibold tracking-tight">Protectora Modepran</h1>
+        <p class="text-stone-500 dark:text-stone-400">Valencia · Carlet</p>
+      </div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <a
+        href="/adopta/"
+        class="card group block p-6 transition hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-md"
+      >
+        <p class="text-3xl" aria-hidden="true">🐶🐱</p>
+        <h2 class="font-display mt-3 text-xl font-semibold group-hover:text-accent-700 dark:group-hover:text-accent-300">Adopta</h2>
+        <p class="mt-1 text-sm text-stone-600 dark:text-stone-400">Conoce a los animales que esperan un hogar.</p>
+      </a>
+      <a
+        href="/app/"
+        class="card group block p-6 transition hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-md"
+      >
+        <p class="text-3xl" aria-hidden="true">🔐</p>
+        <h2 class="font-display mt-3 text-xl font-semibold group-hover:text-accent-700 dark:group-hover:text-accent-300">Gestión interna</h2>
+        <p class="mt-1 text-sm text-stone-600 dark:text-stone-400">Acceso para el personal y voluntariado de la protectora.</p>
+      </a>
+    </div>
+  </main>
+</Base>

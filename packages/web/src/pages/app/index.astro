@@ -1,0 +1,9 @@
+---
+import Base from '../../layouts/Base.astro';
+import App from '../../app/App';
+---
+
+<Base title="Modepran Gestión" noindex>
+  <App client:only="react" />
+  <noscript><p style="padding:1rem">Esta aplicación necesita JavaScript.</p></noscript>
+</Base>

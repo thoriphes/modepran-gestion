@@ -1,0 +1,16 @@
+{
+  "region": "eu-north-1",
+  "appOrigin": "http://localhost:4321",
+  "apiBaseUrl": "/api",
+  "publicFilesBaseUrl": "/public-files",
+  "cognito": {
+    "userPoolId": "dev",
+    "clientId": "dev",
+    "authority": "http://localhost:4321/dev-no-cognito",
+    "domain": "http://localhost:4321/dev-no-cognito",
+    "redirectPath": "/app/callback",
+    "logoutPath": "/",
+    "scopes": ["openid", "email", "profile"]
+  },
+  "devAuth": { "user": "dev-admin", "groups": ["admin"] }
+}
