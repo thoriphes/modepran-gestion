@@ -128,6 +128,8 @@ export function createCognitoAuth(config: AppConfig): AuthProvider {
     userStore: new WebStorageStateStore({ store: window.sessionStorage }),
     automaticSilentRenew: false,
     loadUserInfo: false,
+    // Managed login de Cognito en español.
+    extraQueryParams: { lang: 'es' },
   });
 
   const valid = (u: OidcUser | null): u is OidcUser => !!u && !u.expired && !!u[TOKEN_KIND];
