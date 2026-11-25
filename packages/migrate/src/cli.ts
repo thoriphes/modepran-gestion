@@ -6,6 +6,8 @@
  *   verify --out <dir>
  *   load   --out <dir> --table <name> --bucket <name> --profile <p> --region <r>
  *          [--dry-run] [--storage <dir>] [--skip-db] [--skip-files] [--concurrency 8]
+ *   seed-operational --table <name> --profile <p> --region <r> [--dry-run]
+ *          catálogos operativos por defecto (zonas, tipos de cita, categorías de actuación); idempotente
  *
  * `--out` (y `--extract`) tienen que estar FUERA del repo y de cualquier carpeta sincronizada (Nextcloud):
  * contienen datos personales reales. El CLI se niega si no.
@@ -20,6 +22,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildManifest, listStorageDir, readListingFile, readTarGz, safeJoin, type FileEntry, type FileManifest } from './files.js';
 import { DISCARDED_TABLES, mapSource, MIGRATED_TABLES, type MigrationResult, type SourceTables } from './map.js';
+import { formatPlan, planOperationalSeed, type CurrentCatalogs } from './operational.js';
 import { readDumpFile } from './sql-parser.js';
 import { computeSourceStats, formatReport, verifyMigration, type SourceStats } from './verify.js';
 
@@ -308,6 +311,69 @@ async function cmdLoad(args: Args): Promise<void> {
   }
 }
 
+type RepoLike = {
+  getCatalogs(): Promise<Record<string, { id: string; name: string; active: boolean }[]>>;
+  putCatalogItem(type: string, item: { id: string }): Promise<void>;
+};
+
+/** `createDynamoRepository` de `@modepran/api` (import dinámico, como en `load`). */
+async function dynamoRepository(args: Args, tableName: string, region: string): Promise<RepoLike> {
+  const specs = opt(args, 'repo-module') ? [opt(args, 'repo-module')!] : ['@modepran/api', '@modepran/api/src/repo/dynamo.ts'];
+  for (const spec of specs) {
+    const mod = (await import(spec).catch(() => ({}))) as Record<string, unknown>;
+    if (typeof mod.createDynamoRepository === 'function')
+      return (mod.createDynamoRepository as (o: { tableName: string; region?: string }) => RepoLike)({ tableName, region });
+  }
+  throw new Error(`Ninguno de ${specs.join(', ')} exporta createDynamoRepository({ tableName }).`);
+}
+
+/** Cuenta correcta (CLAUDE.md) y entorno AWS del perfil. */
+function checkAccount(args: Args, profile: string, region: string): void {
+  const identity = JSON.parse(execFileSync('aws', ['sts', 'get-caller-identity', '--profile', profile, '--output', 'json'], { encoding: 'utf8' })) as {
+    Account: string;
+  };
+  const expected = opt(args, 'account') ?? EXPECTED_ACCOUNT;
+  if (identity.Account !== expected) throw new Error(`La cuenta del perfil ${profile} es ${identity.Account}, no ${expected}. No se hace nada.`);
+  process.env.AWS_PROFILE = profile;
+  process.env.AWS_REGION = region;
+}
+
+/**
+ * Catálogos operativos por defecto (`operational.ts`). Lee los catálogos actuales de la tabla y solo inserta
+ * lo que falta (por id o nombre). Con `--dry-run` lee pero no escribe; si no puede leer la tabla (sin sesión
+ * SSO), planifica contra una tabla vacía y lo avisa.
+ */
+async function cmdSeedOperational(args: Args): Promise<void> {
+  const tableName = req(args, 'table');
+  const profile = req(args, 'profile');
+  const region = req(args, 'region');
+  const dryRun = args['dry-run'] === true;
+  console.log(`seed-operational${dryRun ? ' (dry-run)' : ''}: tabla ${tableName}, región ${region}, perfil ${profile}`);
+  let repo: RepoLike | undefined;
+  let current: CurrentCatalogs = {};
+  try {
+    checkAccount(args, profile, region);
+    repo = await dynamoRepository(args, tableName, region);
+    current = (await repo.getCatalogs()) as unknown as CurrentCatalogs;
+    console.log(
+      `  actual: ${current.areas?.length ?? 0} zonas, ${current.appointmentTypes?.length ?? 0} tipos de cita, ` +
+        `${current.actionCategories?.length ?? 0} categorías, ${current.subtypes?.length ?? 0} subtipos, ${current.vaccines?.length ?? 0} vacunas`,
+    );
+  } catch (e) {
+    if (!dryRun) throw e;
+    console.log(`  AVISO: no se ha podido leer la tabla (${(e as Error).message.split('\n')[0]}). Plan contra una tabla vacía.`);
+  }
+  const plan = planOperationalSeed(current);
+  console.log(formatPlan(plan));
+  if (dryRun) {
+    console.log('  dry-run: no se ha escrito nada.');
+    return;
+  }
+  const items = (Object.entries(plan.insert) as [string, { id: string }[]][]).flatMap(([type, list]) => list.map((item) => [type, item] as const));
+  for (const [type, item] of items) await repo!.putCatalogItem(type, item);
+  console.log(`  insertados: ${items.length}`);
+}
+
 const HELP = `Uso: npm run migrate -w @modepran/migrate -- <comando> [opciones]
 
   parse  --dump <sql.gz> --out <dir> [--tar-list <txt> | --tar <tar.gz> | --storage <dir>]
@@ -315,6 +381,7 @@ const HELP = `Uso: npm run migrate -w @modepran/migrate -- <comando> [opciones]
   verify --out <dir>
   load   --out <dir> --table <name> --bucket <name> --profile <p> --region <r>
          [--dry-run] [--storage <dir>] [--skip-db] [--skip-files] [--concurrency 8]
+  seed-operational --table <name> --profile <p> --region <r> [--dry-run]
 
 --out y --extract tienen que estar fuera del repo y de Nextcloud (datos personales reales).`;
 
@@ -333,6 +400,9 @@ export async function main(argv: string[]): Promise<number> {
     case 'load':
       await cmdLoad(args);
       return Number(process.exitCode ?? 0);
+    case 'seed-operational':
+      await cmdSeedOperational(args);
+      return 0;
     default:
       console.log(HELP);
       return cmd ? 1 : 0;
