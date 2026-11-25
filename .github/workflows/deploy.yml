@@ -1,8 +1,9 @@
 name: Deploy
 
 on:
-  push:
-    branches: [main]
+  # push a main desactivado hasta el primer despliegue manual y las variables AWS_ROLE_ARN/AWS_REGION
+  # push:
+  #   branches: [main]
   workflow_dispatch:
 
 permissions:
