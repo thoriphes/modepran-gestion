@@ -69,3 +69,12 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ hecho · ⛔ bloqueado (con motivo
 - Quitar el flujo `userSrp` del cliente de Cognito si el managed login funciona sin él (probarlo).
 - Matriz de permisos, decisiones menores: Carlet borra contactos sin uso; Carlet edita sus derivaciones en
   la agenda de Modevet; la web enseña el botón "Ficha" a Modevet aunque la API le da 403.
+
+## Peticiones de Nacho (por hacer)
+
+- **2026-11-25 — Navegador de documentos.** La sección "Documentos" del menú es en realidad la de
+  **plantillas** (renombrarla). Hace falta un **browser de documentos** propiamente dicho: listado de todos los
+  documentos generados/adjuntos (contratos de adopción/acogida, llegadas, salidas, veterinario, PDFs subidos),
+  filtrable por **fecha**, **tipo de movimiento** (tipo/subtipo de evento), **animal** y demás campos útiles
+  (centro, contacto…), con acceso a imprimir/descargar cada uno. Respetar permisos (Modevet solo
+  veterinarios; Bienestar nada). No implementado todavía por decisión de Nacho.
