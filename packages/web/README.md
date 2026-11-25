@@ -6,8 +6,8 @@ Frontal de Modepran Gestión: **Astro 5** (estático, sin SSR) + **React 19** (i
 src/
   pages/index.astro          portada (enlaces a la app y a adopciones)
   pages/app/index.astro      app interna: isla React `client:only` con React Router (basename /app)
-  pages/adopta/index.astro   web pública de adopciones (listado; /adopta/<n> también muestra la ficha)
-  pages/adopta/animal.astro  ficha pública por query: /adopta/animal/?id=<n>
+  pages/adopta/index.astro   web pública de adopciones (listado; /adopta/<n> muestra la ficha: enlaces normales)
+  pages/adopta/animal.astro  ficha pública por query: /adopta/animal/?id=<n> (compatibilidad con enlaces viejos)
   app/                       app interna: App.tsx (arranque + rutas), Layout.tsx (navegación por permisos),
                              context.tsx (sesión, catálogos, useAsync/useAction), ui/ (componentes propios),
                              components/, screens/ (una carpeta por módulo)
@@ -32,7 +32,9 @@ npm run dev -w @modepran/web   # http://localhost:4321/app/
 - `/config.json` en dev lo sirve un middleware desde `dev/config.json` (sin secretos, con
   `devAuth: {user, groups}`) o, si existe, desde `dev/config.local.json` (ignorado en git). Con `devAuth` no hay
   Cognito: el cliente manda `x-dev-user` / `x-dev-groups`. El usuario simulado se cambia en **Mi cuenta**.
-- El dev server también imita el fallback de SPA de CloudFront (`/app/<ruta>` → `/app/`).
+- El dev server también imita las reescrituras de CloudFront (`/app/<ruta>` → `/app/`, `/adopta/<n>` → `/adopta/`).
+- Fotos y adjuntos en dev: la API los guarda en disco (`os.tmpdir()/modepran-dev-files`) y los sirve en
+  `/dev-files/*` y `/public-files/*`, así que subir y ver fotos funciona en local.
 - **El `config.json` de producción no está en el build**: lo escribe CDK (`BucketDeployment` del stack) y el
   workflow lo excluye del `aws s3 sync`.
 
@@ -43,6 +45,7 @@ npm run dev -w @modepran/web   # http://localhost:4321/app/
   **id token** como Bearer (lo acepta el JWT authorizer y lleva `cognito:groups`).
 - Documentos: la API devuelve el HTML ya rellenado; se pinta en un `<iframe srcdoc>` y "Imprimir" imprime solo
   el iframe (Guardar como PDF desde el navegador).
-- Fotos privadas: URL firmada GET por `GET /animals/:id/file-url?key=` (caché 4 min en el cliente).
+- Fotos privadas: `GET /animals` y `GET /animals/:id` ya traen `thumbUrl`/`photoUrl` firmadas (5 min); solo si
+  faltan se piden a `GET /animals/:id/file-url?key=` (caché 4 min en el cliente).
 - `public/images/logo.png` es un **logo provisional** (huella): sustituirlo por el de la protectora. Lo usan
   las plantillas de documentos (`[LOGO_URL]`).

@@ -1,6 +1,6 @@
 /**
- * Entrada de `/adopta/`: muestra el listado, o la ficha si la ruta es `/adopta/<id>` (por si CloudFront
- * acaba sirviendo `adopta/index.html` como fallback de esas rutas).
+ * Entrada de `/adopta/`: muestra el listado, o la ficha si la ruta es `/adopta/<id>` (CloudFront y el dev
+ * server reescriben `/adopta/<n>` a `adopta/index.html`).
  */
 import { useEffect, useState } from 'react';
 import AdoptDetail from './AdoptDetail';

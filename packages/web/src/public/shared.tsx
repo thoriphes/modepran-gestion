@@ -42,8 +42,11 @@ export function speciesEmoji(a: Pick<PublicAnimal, 'species' | 'speciesCode'>): 
   return '🐾';
 }
 
-/** Enlace a la ficha. Se usa `?id=` porque CloudFront aún no tiene fallback para `/adopta/<id>`. */
-export const detailHref = (id: number) => `/adopta/animal/?id=${id}`;
+/**
+ * Enlace a la ficha: `/adopta/<id>` (CloudFront lo reescribe a `/adopta/index.html`, `WEB_REWRITE_CODE`).
+ * `/adopta/animal/?id=<id>` sigue funcionando para enlaces antiguos.
+ */
+export const detailHref = (id: number) => `/adopta/${id}`;
 
 export function Photo({ a, src, className }: { a: PublicAnimal; src: string | undefined; className?: string }) {
   const [failed, setFailed] = useState(false);

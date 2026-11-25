@@ -121,8 +121,8 @@ export function AnimalPicker({
 }
 
 /**
- * URL firmada de la foto o miniatura de un animal. La API no la incluye en listados ni fichas: se pide a
- * `GET /animals/:id/file-url` (con caché en el cliente). `known` = URL ya conocida (si la API la manda).
+ * URL firmada de la foto o miniatura de un animal. `known` = la que ya manda la API (listado y ficha la
+ * incluyen si `hasPhoto`); solo si falta se pide a `GET /animals/:id/file-url` (con caché en el cliente).
  */
 export function useAnimalPhoto(animalId: number | undefined, hasPhoto: boolean | undefined, kind: 'thumb' | 'photo', known?: string, version?: unknown) {
   const { api } = useSession();

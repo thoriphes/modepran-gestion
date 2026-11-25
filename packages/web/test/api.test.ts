@@ -25,6 +25,14 @@ describe('createApi', () => {
     expect(init!.method).toBe('GET');
   });
 
+  it('derivaciones: una sola llamada con referred=1', async () => {
+    const fetchImpl = mockFetch(200, []);
+    const api = createApi({ baseUrl: '/api', getHeaders: async () => ({}), fetchImpl });
+    expect(await api.incidents.referred()).toEqual([]);
+    expect(fetchImpl.mock.calls).toHaveLength(1);
+    expect(String(fetchImpl.mock.calls[0]![0])).toBe('/api/incidents?referred=1');
+  });
+
   it('envía JSON en POST', async () => {
     const fetchImpl = mockFetch(200, { id: 'x' });
     const api = createApi({ baseUrl: '/api', getHeaders: async () => ({ authorization: 'Bearer t' }), fetchImpl });

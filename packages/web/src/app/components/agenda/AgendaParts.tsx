@@ -523,9 +523,10 @@ function RegisterHistory({ item }: { item: AgendaItemView }) {
   }, [item, catalogs]);
   const [checked, setChecked] = useState<Set<string>>(() => new Set(candidates.map((c) => c.key)));
   const [result, setResult] = useState<number>();
+  const [notes, setNotes] = useState('');
   const reg = useAction(async () => {
     const actionIndexes = candidates.filter((c) => checked.has(c.key)).map((c) => c.index);
-    const r = await api.agenda.registerHistory(item.id, { actionIndexes });
+    const r = await api.agenda.registerHistory(item.id, { actionIndexes, ...(notes.trim() ? { notes: notes.trim() } : {}) });
     setResult(r.events?.length ?? actionIndexes.length);
   });
 
@@ -551,6 +552,9 @@ function RegisterHistory({ item }: { item: AgendaItemView }) {
               />
             ))}
           </div>
+          {result === undefined && (
+            <TextArea label="Notas (opcional)" hint="Se añaden a cada evento creado." rows={2} maxLength={5000} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          )}
           <p className="text-xs text-stone-500">Se crea un evento Veterinario por actuación marcada, con fecha de la cita. Solo se puede registrar una vez.</p>
           {reg.error !== undefined && <ErrorBox error={reg.error} />}
           {result !== undefined ? (

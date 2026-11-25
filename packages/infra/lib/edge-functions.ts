@@ -8,8 +8,12 @@
 /**
  * Web estática (build de Astro en formato "directory"):
  * - `/app` y `/app/<ruta sin extensión>` → `/app/index.html` (isla React Router, fallback de SPA).
- * - `/<ruta>/` → `/<ruta>/index.html`; `/<ruta>` sin extensión → `/<ruta>/index.html` (p. ej. `/adopta/12`).
+ * - `/adopta/<n>` (número, con o sin `/` final) → `/adopta/index.html` (la isla lee el id de la ruta).
+ * - `/<ruta>/` → `/<ruta>/index.html`; `/<ruta>` sin extensión → `/<ruta>/index.html`.
  * - Ficheros con extensión, tal cual.
+ *
+ * Un objeto que no existe sigue dando 403 de S3 (OAC sin `s3:ListBucket`): una función viewer-request no sabe
+ * si existe y las custom error responses afectarían a la API (ver arriba).
  */
 export const WEB_REWRITE_CODE = `
 function handler(event) {
@@ -18,6 +22,10 @@ function handler(event) {
   var hasExt = /\\.[A-Za-z0-9]+$/.test(uri);
   if (uri === '/app' || uri.indexOf('/app/') === 0) {
     if (!hasExt) req.uri = '/app/index.html';
+    return req;
+  }
+  if (/^\\/adopta\\/\\d+\\/?$/.test(uri)) {
+    req.uri = '/adopta/index.html';
     return req;
   }
   if (uri.charAt(uri.length - 1) === '/') {

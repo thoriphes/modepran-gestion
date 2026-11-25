@@ -15,10 +15,12 @@ function devConfigJson() {
     name: 'modepran-dev-config',
     apply: /** @type {'serve'} */ ('serve'),
     configureServer(/** @type {any} */ server) {
-      // Fallback de SPA como el de CloudFront (`WEB_REWRITE_CODE`): /app/<ruta sin extensión> → /app/.
+      // Reescrituras como las de CloudFront (`WEB_REWRITE_CODE`): /app/<ruta sin extensión> → /app/ (fallback de SPA).
       server.middlewares.use((/** @type {any} */ req, /** @type {any} */ _res, /** @type {any} */ next) => {
         const [path, query] = String(req.url ?? '').split('?');
         if (path && /^\/app\/[^.]+$/.test(path) && !path.startsWith('/app/@')) req.url = '/app/' + (query ? `?${query}` : '');
+        // `/adopta/<n>` → `/adopta/` (la isla lee el id de la ruta), como en CloudFront.
+        else if (path && /^\/adopta\/\d+\/?$/.test(path)) req.url = '/adopta/' + (query ? `?${query}` : '');
         next();
       });
       server.middlewares.use('/config.json', (/** @type {any} */ _req, /** @type {any} */ res) => {

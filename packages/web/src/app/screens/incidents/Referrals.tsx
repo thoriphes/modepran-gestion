@@ -1,5 +1,5 @@
 /** Bandeja de derivaciones a Modevet: incidencias abiertas con derivación. */
-import { todayMadrid, type Incident } from '@modepran/domain';
+import type { Incident } from '@modepran/domain';
 import { RequirePerm } from '../../Layout';
 import { IncidentCard, sortIncidents, type IncidentView } from '../../components/incidents/IncidentParts';
 import { useAsync, useSession } from '../../context';
@@ -15,7 +15,7 @@ export default function Referrals() {
 
 function List() {
   const { api, can } = useSession();
-  const list = useAsync<Incident[]>(() => api.incidents.referred(todayMadrid()), []);
+  const list = useAsync<Incident[]>(() => api.incidents.referred(), []);
   const items = sortIncidents((list.data ?? []).filter((i) => i.status !== 'resuelta'));
   return (
     <div className="mx-auto max-w-5xl">

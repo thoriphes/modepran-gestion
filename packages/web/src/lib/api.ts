@@ -104,7 +104,9 @@ export const CATALOG_TYPES: CatalogType[] = [
 ];
 
 export interface AnimalListItem extends Animal {
+  /** GET firmados (5 min) que manda la API si `hasPhoto`. */
   thumbUrl?: string;
+  photoUrl?: string;
   /** Solo con `withContacts=true` (listado de acogida/propietarios): contacto del último evento con contacto. */
   lastContact?: Contact & { eventDate?: IsoDate; subtypeId?: string };
 }
@@ -114,6 +116,7 @@ export interface AnimalDetail {
   events: HistoryEvent[];
   /** Contactos citados en el historial (vacío si no hay permiso `animals:read_contacts`). */
   contacts: Contact[];
+  /** GET firmados (5 min) que manda la API si `hasPhoto`. */
   photoUrl?: string;
   thumbUrl?: string;
 }
@@ -457,9 +460,9 @@ export function createApi(opts: ApiClientOptions) {
       eventUploadUrl: (id: number, fileName: string, contentType: string) =>
         post<UploadTarget>(`/animals/${id}/event-upload-url`, { fileName, contentType }),
       fileUrl: async (id: number, key: string) => ({ url: await fileUrl(id, key) }),
-      /** Foto (700 px) firmada; la API no la incluye en la ficha. */
+      /** Foto (700 px) firmada. Solo de reserva: el listado y la ficha ya traen `photoUrl`/`thumbUrl`. */
       photoUrl: (id: number) => fileUrl(id, `animals/${id}/photo.jpg`),
-      /** Miniatura (200 px) firmada; la API no la incluye en el listado. */
+      /** Miniatura (200 px) firmada. Solo de reserva (p. ej. animales que no vienen del listado ni de la ficha). */
       thumbUrl: (id: number) => fileUrl(id, `animals/${id}/thumb.jpg`),
     },
 
@@ -515,26 +518,16 @@ export function createApi(opts: ApiClientOptions) {
         patch<AgendaItem>(`/agenda/${encodeURIComponent(id)}`, body),
       reschedule: (id: string, body: { date: IsoDate; time?: string }) =>
         post<{ original: AgendaItem; created: AgendaItem }>(`/agenda/${encodeURIComponent(id)}/reschedule`, body),
-      /** `actionIndexes`: posiciones en `item.actions` (por defecto, todas). */
-      registerHistory: (id: string, body: { actionIndexes?: number[] }) =>
+      /** `actionIndexes`: posiciones en `item.actions` (por defecto, todas). `notes`: se añaden a cada evento. */
+      registerHistory: (id: string, body: { actionIndexes?: number[]; notes?: string }) =>
         post<{ events: HistoryEvent[]; skipped: { index: number; reason: string }[] }>(`/agenda/${encodeURIComponent(id)}/register-history`, body),
     },
 
     incidents: {
       list: listIncidents,
-      /**
-       * Incidencias con derivación a Modevet. La API no tiene filtro propio: se sacan las derivaciones de la
-       * agenda de Modevet (60 días atrás + 30 adelante + pendientes atrasadas) y se cruzan con las incidencias.
-       */
-      referred: async (today: IsoDate) => {
-        const shift = (d: IsoDate, n: number) => {
-          const [y, m, day] = d.split('-').map(Number) as [number, number, number];
-          return new Date(Date.UTC(y, m - 1, day + n)).toISOString().slice(0, 10);
-        };
-        const [r, all] = await Promise.all([agendaList('modevet', shift(today, -60), shift(today, 30), true), listIncidents({})]);
-        const ids = new Set([...r.items, ...(r.overdue ?? [])].filter((i) => i.isReferral && i.incidentId).map((i) => i.incidentId!));
-        return all.filter((i) => ids.has(i.id));
-      },
+      /** Incidencias con derivación a Modevet, abierta o cerrada (`GET /incidents?referred=1`). */
+      referred: async (q: { status?: IncidentStatus } = {}) =>
+        withAnimalNames(await get<Incident[]>('/incidents', { status: q.status, referred: 1 })),
       get: async (id: string) => {
         const r = await get<{ incident: Incident; agenda: AgendaItem[]; photoUrls: ({ key: string; url: string } | string)[] }>(
           `/incidents/${encodeURIComponent(id)}`,
